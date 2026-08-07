@@ -1,0 +1,6 @@
+{
+  "name": "The Imagination Studio",
+  "description": "Luxury creative studio portfolio featuring brand identity, 3D visualization, motion graphics, automotive design, and interactive showcases.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

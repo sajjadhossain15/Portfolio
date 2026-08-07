@@ -1,0 +1,28 @@
+/*
+Theme Name: Imagination Studio
+Theme URI: https://imaginationstudio.art
+Author: Sajjad Hossain
+Author URI: https://imaginationstudio.art
+Description: A high-end, luxury interactive portfolio theme for Automotive Design, 3D Animation, Motion Graphics, VFX, Product Visualization, and Graphic Design. Built with custom WebGL Three.js 3D Creative Core, GSAP timelines, Lenis smooth scroll, and dark editorial glassmorphism aesthetic.
+Version: 1.0.0
+License: GNU General Public License v2 or later
+Text Domain: imagination-studio
+*/
+
+/* Reset & Base Foundation */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: #070709;
+  color: #f3f4f6;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

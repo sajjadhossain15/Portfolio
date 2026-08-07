@@ -1,0 +1,256 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --black-1: #0A0A0B;
+    --black-2: #141416;
+    --off-white: #F4F3EF;
+    --muted: #8B8B8D;
+    --accent: #C9C2B4;
+    --glass: #2A2D33;
+    --hairline: #232326;
+  }
+
+  body {
+    background-color: var(--black-1);
+    color: var(--off-white);
+    font-family: 'Archivo', sans-serif;
+  }
+
+  h1, h2, h3, .font-serif-custom {
+    font-family: 'Fraunces', serif;
+  }
+}
+
+/* Active Theory inspired premium digital surface micro-motion animations */
+@keyframes scanlineDrift {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(6px);
+  }
+}
+
+@keyframes digitalShimmer {
+  0%, 100% {
+    opacity: 0.04;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 0.08;
+    transform: translateY(-0.3px) scale(1.001);
+  }
+}
+
+@keyframes microRefraction {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(0.2px, -0.2px);
+  }
+  50% {
+    transform: translate(-0.2px, 0.2px);
+  }
+  75% {
+    transform: translate(-0.1px, -0.1px);
+  }
+}
+
+@keyframes dustFloat {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(var(--dx, 4px), var(--dy, -6px));
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes softTwinkle {
+  0%, 100% {
+    opacity: var(--min-op, 0.1);
+  }
+  50% {
+    opacity: var(--max-op, 0.45);
+  }
+}
+
+@keyframes particlePath0 {
+  0% { transform: translate3d(0, 0, 0); }
+  25% { transform: translate3d(12px, -14px, 0); }
+  50% { transform: translate3d(-8px, -24px, 0); }
+  75% { transform: translate3d(-18px, -10px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes particlePath1 {
+  0% { transform: translate3d(0, 0, 0); }
+  33% { transform: translate3d(-14px, 12px, 0); }
+  66% { transform: translate3d(12px, 20px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes particlePath2 {
+  0% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(6px, -20px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes particlePath3 {
+  0% { transform: translate3d(0, 0, 0); }
+  40% { transform: translate3d(-18px, -16px, 0); }
+  80% { transform: translate3d(14px, -8px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes particlePath4 {
+  0% { transform: translate3d(0, 0, 0); }
+  30% { transform: translate3d(15px, 8px, 0); }
+  70% { transform: translate3d(-12px, -18px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes particlePathOrbital {
+  0% { transform: rotate(var(--orbit-angle, 0deg)) translate3d(var(--orbit-rx, 8px), 0, 0) rotate(calc(-1 * var(--orbit-angle, 0deg))); }
+  25% { transform: rotate(var(--orbit-angle, 0deg)) translate3d(0, var(--orbit-ry, 4px), 0) rotate(calc(-1 * var(--orbit-angle, 0deg))); }
+  50% { transform: rotate(var(--orbit-angle, 0deg)) translate3d(calc(-1 * var(--orbit-rx, 8px)), 0, 0) rotate(calc(-1 * var(--orbit-angle, 0deg))); }
+  75% { transform: rotate(var(--orbit-angle, 0deg)) translate3d(0, calc(-1 * var(--orbit-ry, 4px)), 0) rotate(calc(-1 * var(--orbit-angle, 0deg))); }
+  100% { transform: rotate(var(--orbit-angle, 0deg)) translate3d(var(--orbit-rx, 8px), 0, 0) rotate(calc(-1 * var(--orbit-angle, 0deg))); }
+}
+
+@keyframes singleParticleTwinkle {
+  0%, 91%, 100% {
+    opacity: var(--base-op, 0.4);
+    filter: brightness(1);
+  }
+  94%, 96% {
+    opacity: calc(var(--base-op, 0.4) * 1.40 + 0.12);
+    filter: brightness(1.30);
+  }
+}
+
+@keyframes softHazePulse {
+  0%, 100% {
+    opacity: var(--min-haze-op, 0.03);
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  50% {
+    opacity: var(--max-haze-op, 0.07);
+    transform: scale(1.08) translate3d(4px, -5px, 0);
+  }
+}
+
+/* Premium Optical Edge Light System (Google AI Studio Inspired) */
+@keyframes edgeBeamRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Edge light border-mask container (1.5px precise border outline) */
+.optical-edge-mask {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 25;
+  padding: 1.5px;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  overflow: hidden;
+}
+
+/* Base Idle Edge Light: Very subtle static edge glow, 12-15% opacity, no animation */
+.optical-edge-idle {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(147, 197, 253, 0.14);
+  box-shadow: 0 0 1px rgba(147, 197, 253, 0.12);
+  opacity: 1;
+  pointer-events: none;
+}
+
+/* Dynamic Optical Edge Energy Light Beam (Single light source that transfers smoothly) */
+.optical-edge-energy-beam {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    transparent 270deg,
+    rgba(96, 165, 250, 0.40) 310deg,
+    rgba(191, 219, 254, 0.90) 345deg,
+    rgba(255, 255, 255, 1) 352deg,
+    rgba(191, 219, 254, 0.90) 357deg,
+    transparent 360deg
+  );
+  opacity: 0;
+  transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1), filter 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  animation: edgeBeamRotate 6.5s linear infinite;
+  pointer-events: none;
+}
+
+.optical-edge-energy-beam.is-active-front {
+  opacity: 0.50;
+  animation: edgeBeamRotate 6.5s linear infinite;
+  filter: drop-shadow(0 0 2px rgba(147, 197, 253, 0.35));
+}
+
+.optical-edge-energy-beam.is-hovered-target {
+  opacity: 0.92;
+  animation: edgeBeamRotate 3.2s linear infinite;
+  filter: drop-shadow(0 0 4px rgba(191, 219, 254, 0.70));
+}
+
+.liquid-glass {
+  background: rgba(10, 10, 11, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 20%,
+    rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%,
+    rgba(255,255,255,0.1) 80%, rgba(255,255,255,0.3) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0A0A0B;
+}
+::-webkit-scrollbar-thumb {
+  background: #232326;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3A3A40;
+}

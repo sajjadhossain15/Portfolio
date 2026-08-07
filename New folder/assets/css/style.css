@@ -1,0 +1,66 @@
+/*
+Theme Name: Imagination Studio
+Theme URI: https://yourdomain.com
+Author: Sajjad Hossain
+Description: Premium Interactive Portfolio
+Version: 0.1.0
+License: GPL v2 or later
+Text Domain: imagination-studio
+*/
+
+:root {
+
+    --bg: #050505;
+    --surface: #101010;
+    --text: #ffffff;
+    --text2: #9a9a9a;
+
+    --blue: #4DA3FF;
+    --purple: #8B5CF6;
+
+    --container: 1400px;
+
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+
+    background: var(--bg);
+    color: var(--text);
+
+    font-family: Inter, sans-serif;
+
+    overflow-x: hidden;
+
+}
+
+img {
+
+    display: block;
+    max-width: 100%;
+
+}
+
+a {
+
+    text-decoration: none;
+    color: inherit;
+
+}
+
+.container {
+
+    width: min(92%, 1400px);
+
+    margin: auto;
+
+}
