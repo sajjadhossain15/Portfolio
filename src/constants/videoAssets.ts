@@ -1,13 +1,13 @@
-/**
+ï»¿/**
  * VIDEO ASSET REGISTRY
  * ====================
  * Central source of truth for all video asset paths used across the site.
  * Each constant has a single, documented responsibility.
- * Never use hardcoded video paths in components — always import from here.
+ * Never use hardcoded video paths in components â€” always import from here.
  *
  * File locations on disk:
- *   assets/videos/hero-background.mp4
- *   assets/videos/capabilities-carousel-background.mp4
+ *   /videos/hero-background.mp4
+ *   /videos/capabilities-background.mp4
  */
 
 /**
@@ -16,10 +16,10 @@
  * Used ONLY inside the HeroStage component as the full-screen
  * scroll-scrubbed background. Must NOT appear in any other section.
  *
- * Primary source: local asset served by Vite from /assets/videos/
+ * Primary source: local asset served by Vite from /videos/
  * Fallbacks: CDN mirrors used if the primary file fails to load.
  */
-export const HERO_VIDEO = '/assets/videos/hero-background.mp4';
+export const HERO_VIDEO = '/videos/hero-background.mp4';
 
 /**
  * Hero Section CDN Fallback Sources
@@ -36,9 +36,11 @@ export const HERO_VIDEO_FALLBACKS: readonly string[] = [
  * Capabilities Section Carousel Background Video
  * -----------------------------------------------
  * Used ONLY behind the 3D orbital carousel in the Capabilities / Disciplines
- * section. Clipped strictly to the carousel container — must NEVER bleed
+ * section. Clipped strictly to the carousel container â€” must NEVER bleed
  * behind the "Our Capabilities" heading or any other section.
  *
  * Playback rate is dynamically driven by swipe interaction velocity.
  */
-export const CAPABILITIES_VIDEO = '/assets/videos/capabilities-carousel-background.mp4';
+export const CAPABILITIES_VIDEO = '/videos/capabilities-background.mp4';
+
+
