@@ -43,14 +43,14 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose }) =
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10 bg-[#0A0A0B]/90 backdrop-blur-2xl animate-in fade-in duration-300">
-      <div className="liquid-glass border border-[#C9C2B4]/30 rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden relative shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10 bg-[#000000]/90 backdrop-blur-2xl animate-in fade-in duration-300">
+      <div className="glass-card-large border border-[#232326] hover:border-[#C9C2B4]/30 rounded-[24px] max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden relative shadow-2xl transition-colors">
         
         {/* Modal Header */}
-        <div className="px-6 sm:px-8 py-5 border-b border-[#232326] flex items-center justify-between shrink-0 bg-[#0A0A0B]/80">
+        <div className="px-4 sm:px-8 py-3.5 sm:py-5 border-b border-[#232326] flex items-center justify-between shrink-0 bg-[#000000]/80">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-[#C9C2B4]" />
-            <h3 className="font-serif-custom text-xl text-[#F4F3EF]">Project Inquiry Builder</h3>
+            <h3 className="font-sans text-h3 font-medium text-[#F4F3EF]">Project Inquiry Builder</h3>
           </div>
 
           <button
@@ -72,10 +72,10 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose }) =
                 <CheckCircle2 className="w-8 h-8" />
               </div>
               
-              <h4 className="font-serif-custom text-3xl text-[#F4F3EF]">Inquiry Received</h4>
+              <h4 className="font-sans text-h2 font-medium text-[#F4F3EF]">Inquiry Received</h4>
               
-              <p className="text-sm text-[#8B8B8D] max-w-md mx-auto leading-relaxed">
-                Thank you, <span className="text-[#F4F3EF] font-semibold">{formData.name}</span>. Our partners in Dhaka and Paris have received your brief. We will review your scope and respond within 24 hours with an initial consultation proposal.
+              <p className="font-sans text-body text-[#8B8B8D] max-w-md mx-auto">
+                Thank you, <span className="text-[#F4F3EF] font-medium">{formData.name}</span>. Our partners in Dhaka and Paris have received your brief. We will review your scope and respond within 24 hours with an initial consultation proposal.
               </p>
 
               <div className="p-4 rounded-xl border border-[#232326] bg-[#141416]/50 max-w-sm mx-auto text-xs text-[#8B8B8D] space-y-1 font-mono">
@@ -88,7 +88,7 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose }) =
                   setSubmitted(false);
                   onClose();
                 }}
-                className="bg-[#F4F3EF] text-[#0A0A0B] px-8 py-3 rounded-xl text-xs font-semibold uppercase tracking-widest hover:bg-[#C9C2B4] transition-colors"
+                className="bg-[#F4F3EF] text-[#0A0A0B] px-8 py-3 rounded-lg font-mono text-label hover:bg-[#C9C2B4] transition-colors"
               >
                 Return to Studio
               </button>
@@ -134,7 +134,7 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose }) =
                       type="button"
                       key={opt}
                       onClick={() => setFormData({ ...formData, budgetRange: opt })}
-                      className={`py-3 px-4 rounded-xl text-xs tracking-wider uppercase border text-center transition-all ${
+                      className={`py-3 px-4 rounded-lg text-xs tracking-wider uppercase border text-center transition-all ${
                         formData.budgetRange === opt
                           ? 'border-[#C9C2B4] bg-[#C9C2B4] text-[#0A0A0B] font-semibold'
                           : 'border-[#232326] bg-[#141416]/40 text-[#8B8B8D] hover:border-[#3A3A40]'
@@ -157,7 +157,7 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose }) =
                       type="button"
                       key={opt}
                       onClick={() => setFormData({ ...formData, timeline: opt })}
-                      className={`py-3 px-4 rounded-xl text-xs tracking-wider uppercase border text-center transition-all ${
+                      className={`py-3 px-4 rounded-lg text-xs tracking-wider uppercase border text-center transition-all ${
                         formData.timeline === opt
                           ? 'border-[#C9C2B4] bg-[#C9C2B4] text-[#0A0A0B] font-semibold'
                           : 'border-[#232326] bg-[#141416]/40 text-[#8B8B8D] hover:border-[#3A3A40]'
@@ -216,7 +216,7 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose }) =
               <div className="pt-2 flex justify-end">
                 <button
                   type="submit"
-                  className="w-full sm:w-auto bg-[#F4F3EF] text-[#0A0A0B] px-8 py-3.5 rounded-xl text-xs font-semibold uppercase tracking-widest hover:bg-[#C9C2B4] transition-colors flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto bg-[#F4F3EF] text-[#0A0A0B] px-8 py-3.5 rounded-lg text-xs font-semibold uppercase tracking-widest hover:bg-[#C9C2B4] transition-colors flex items-center justify-center gap-2"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>Submit Inquiry</span>

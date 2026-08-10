@@ -1,0 +1,257 @@
+668:const getEdgePathPoint = (
+669-  t: number, 
+670-  w: number, 
+671-  h: number, 
+672-  r: number, 
+673-  inset: number,
+674-  pathType: 'LB' | 'LT' | 'RT' | 'RB'
+675-) => {
+676-  const effW = w - inset * 2;
+677-  const effH = h - inset * 2;
+678-  const rEff = r - inset;
+679-  
+680-  const l1 = effH / 2 - rEff;
+681-  const l2 = (Math.PI * rEff) / 2;
+682-  // Stop 8 pixels short of the exact horizontal center to prevent overlap
+683-  const l3 = effW / 2 - rEff - 8;
+684-  const totalL = l1 + l2 + l3;
+685-  
+686-  const d = t * totalL;
+687-  
+688-  let x = 0, y = 0, angle = 0;
+689-  
+690-  if (pathType === 'LB') {
+691-    if (d <= l1) {
+692-      x = 0; y = effH / 2 + d; angle = 90;
+693-    } else if (d <= l1 + l2) {
+694-      const arcD = d - l1;
+695-      const theta = (arcD / l2) * (Math.PI / 2);
+696-      x = rEff - rEff * Math.cos(theta);
+697-      y = effH - rEff + rEff * Math.sin(theta);
+698-      angle = 90 - theta * (180 / Math.PI);
+699-    } else {
+700-      const straightD = d - (l1 + l2);
+701-      x = rEff + straightD; y = effH; angle = 0;
+702-    }
+703-  } else if (pathType === 'LT') {
+704-    if (d <= l1) {
+705-      x = 0; y = effH / 2 - d; angle = -90;
+706-    } else if (d <= l1 + l2) {
+707-      const arcD = d - l1;
+708-      const theta = (arcD / l2) * (Math.PI / 2);
+709-      x = rEff - rEff * Math.cos(theta);
+710-      y = rEff - rEff * Math.sin(theta);
+711-      angle = -90 + theta * (180 / Math.PI);
+712-    } else {
+713-      const straightD = d - (l1 + l2);
+714-      x = rEff + straightD; y = 0; angle = 0;
+715-    }
+716-  } else if (pathType === 'RT') {
+717-    if (d <= l1) {
+718-      x = effW; y = effH / 2 - d; angle = -90;
+719-    } else if (d <= l1 + l2) {
+720-      const arcD = d - l1;
+721-      const theta = (arcD / l2) * (Math.PI / 2);
+722-      x = effW - rEff + rEff * Math.cos(theta);
+723-      y = rEff - rEff * Math.sin(theta);
+724-      angle = -90 - theta * (180 / Math.PI);
+725-    } else {
+726-      const straightD = d - (l1 + l2);
+727-      x = effW - rEff - straightD; y = 0; angle = 180;
+728-    }
+729-  } else if (pathType === 'RB') {
+730-    if (d <= l1) {
+731-      x = effW; y = effH / 2 + d; angle = 90;
+732-    } else if (d <= l1 + l2) {
+733-      const arcD = d - l1;
+734-      const theta = (arcD / l2) * (Math.PI / 2);
+735-      x = effW - rEff + rEff * Math.cos(theta);
+736-      y = effH - rEff + rEff * Math.sin(theta);
+737-      angle = 90 + theta * (180 / Math.PI);
+738-    } else {
+739-      const straightD = d - (l1 + l2);
+740-      x = effW - rEff - straightD; y = effH; angle = 180;
+741-    }
+742-  }
+743-  
+744-  return { x: x + inset, y: y + inset, angle };
+745-};
+746-
+747-const PerimeterLightLoop: React.FC<{ isHovered?: boolean }> = ({ isHovered }) => {
+748-  const containerRef = useRef<HTMLDivElement>(null);
+749-  const particleLBRef = useRef<HTMLDivElement>(null);
+750-  const particleLTRef = useRef<HTMLDivElement>(null);
+751-  const particleRTRef = useRef<HTMLDivElement>(null);
+752-  const particleRBRef = useRef<HTMLDivElement>(null);
+753-  
+754-  const progress = useMotionValue(0);
+755-  const lightScale = useMotionValue(1);
+756-  const lightOpacity = useMotionValue(0);
+757-  const isReversing = useRef(false);
+758-
+759-  useEffect(() => {
+760-    let isMounted = true;
+761-    const run = async () => {
+762-      while (isMounted) {
+763-        // Forward
+764-        isReversing.current = false;
+765-        await Promise.all([
+766-          animate(progress, 1, { duration: 2.5, ease: "easeInOut" }),
+767-          animate(lightOpacity, [0, 1, 1], { duration: 2.5, ease: "easeInOut" })
+768-        ]);
+769-        if (!isMounted) break;
+770-        
+771-        // Clash / Interaction
+772-        await animate(lightScale, [1, 1.2, 1], { duration: 0.15, ease: "easeInOut" });
+773-        if (!isMounted) break;
+774-        
+775-        // Reverse
+776-        isReversing.current = true;
+777-        await Promise.all([
+778-          animate(progress, 0, { duration: 2.5, ease: "easeInOut" }),
+779-          animate(lightOpacity, [1, 1, 0], { duration: 2.5, ease: "easeInOut" })
+780-        ]);
+781-        if (!isMounted) break;
+782-      }
+783-    };
+784-    run();
+785-    
+786-    return () => {
+787-      isMounted = false;
+788-    };
+789-  }, [progress, lightScale, lightOpacity]);
+790-
+791-  useAnimationFrame(() => {
+792-    if (!containerRef.current) return;
+793-    const pLB = particleLBRef.current;
+794-    const pLT = particleLTRef.current;
+795-    const pRT = particleRTRef.current;
+796-    const pRB = particleRBRef.current;
+797-    if (!pLB || !pLT || !pRT || !pRB) return;
+798-    
+799-    const w = containerRef.current.clientWidth;
+800-    const h = containerRef.current.clientHeight;
+801-    const r = 32; // rounded-[2rem]
+802-    const inset = 1; 
+803-    
+804-    const pVal = progress.get();
+805-    const sVal = lightScale.get();
+806-    const oVal = lightOpacity.get();
+807-    
+808-    const baseOpacity = isHovered ? 0.8 : 0.4;
+809-    const currentOpacity = (oVal * baseOpacity).toString();
+810-    
+811-    const scaleX = isReversing.current ? -1 : 1;
+812-    
+813-    pLB.style.opacity = currentOpacity;
+814-    pLT.style.opacity = currentOpacity;
+815-    pRT.style.opacity = currentOpacity;
+816-    pRB.style.opacity = currentOpacity;
+817-    
+818-    const ptLB = getEdgePathPoint(pVal, w, h, r, inset, 'LB');
+819-    pLB.style.transform = `translate3d(${ptLB.x}px, ${ptLB.y}px, 0) rotate(${ptLB.angle}deg) scaleX(${scaleX}) scale(${sVal})`;
+820-    
+821-    const ptLT = getEdgePathPoint(pVal, w, h, r, inset, 'LT');
+822-    pLT.style.transform = `translate3d(${ptLT.x}px, ${ptLT.y}px, 0) rotate(${ptLT.angle}deg) scaleX(${scaleX}) scale(${sVal})`;
+823-    
+824-    const ptRT = getEdgePathPoint(pVal, w, h, r, inset, 'RT');
+825-    pRT.style.transform = `translate3d(${ptRT.x}px, ${ptRT.y}px, 0) rotate(${ptRT.angle}deg) scaleX(${scaleX}) scale(${sVal})`;
+826-    
+827-    const ptRB = getEdgePathPoint(pVal, w, h, r, inset, 'RB');
+828-    pRB.style.transform = `translate3d(${ptRB.x}px, ${ptRB.y}px, 0) rotate(${ptRB.angle}deg) scaleX(${scaleX}) scale(${sVal})`;
+829-  });
+830-
+831-  return (
+832-    <div ref={containerRef} className="absolute inset-0 pointer-events-none z-10 rounded-[2rem] overflow-hidden">
+833-      
+834-      {/* Particle LB (Left Bottom) - Blue */}
+835-      <div 
+836-        ref={particleLBRef} 
+837-        className="absolute top-0 left-0 flex items-center justify-center transition-opacity duration-500"
+838-        style={{ width: 0, height: 0 }}
+839-      >
+840-        <div 
+841-          className="absolute right-0 w-32 sm:w-48 md:w-64 h-[1px] bg-gradient-to-l from-blue-500 to-transparent"
+842-          style={{ transformOrigin: 'right center' }}
+843-        />
+844-        <div 
+845-          className="absolute rounded-full bg-blue-500"
+846-          style={{ 
+847-            width: isHovered ? "3px" : "2px",
+848-            height: isHovered ? "3px" : "2px",
+849-            boxShadow: isHovered 
+850-              ? "0 0 16px 4px rgba(59,130,246,0.8), 0 0 4px 1px rgba(59,130,246,1)" 
+851-              : "0 0 10px 2px rgba(59,130,246,0.6)",
+852-          }}
+853-        />
+854-      </div>
+855-
+856-      {/* Particle LT (Left Top) - Blue */}
+857-      <div 
+858-        ref={particleLTRef} 
+859-        className="absolute top-0 left-0 flex items-center justify-center transition-opacity duration-500"
+860-        style={{ width: 0, height: 0 }}
+861-      >
+862-        <div 
+863-          className="absolute right-0 w-32 sm:w-48 md:w-64 h-[1px] bg-gradient-to-l from-blue-500 to-transparent"
+864-          style={{ transformOrigin: 'right center' }}
+865-        />
+866-        <div 
+867-          className="absolute rounded-full bg-blue-500"
+868-          style={{ 
+869-            width: isHovered ? "3px" : "2px",
+870-            height: isHovered ? "3px" : "2px",
+871-            boxShadow: isHovered 
+872-              ? "0 0 16px 4px rgba(59,130,246,0.8), 0 0 4px 1px rgba(59,130,246,1)" 
+873-              : "0 0 10px 2px rgba(59,130,246,0.6)",
+874-          }}
+875-        />
+876-      </div>
+877-
+878-      {/* Particle RT (Right Top) - Purple */}
+879-      <div 
+880-        ref={particleRTRef} 
+881-        className="absolute top-0 left-0 flex items-center justify-center transition-opacity duration-500"
+882-        style={{ width: 0, height: 0 }}
+883-      >
+884-        <div 
+885-          className="absolute right-0 w-32 sm:w-48 md:w-64 h-[1px] bg-gradient-to-l from-purple-500 to-transparent"
+886-          style={{ transformOrigin: 'right center' }}
+887-        />
+888-        <div 
+889-          className="absolute rounded-full bg-purple-500"
+890-          style={{ 
+891-            width: isHovered ? "3px" : "2px",
+892-            height: isHovered ? "3px" : "2px",
+893-            boxShadow: isHovered 
+894-              ? "0 0 16px 4px rgba(168,85,247,0.8), 0 0 4px 1px rgba(168,85,247,1)" 
+895-              : "0 0 10px 2px rgba(168,85,247,0.6)",
+896-          }}
+897-        />
+898-      </div>
+899-
+900-      {/* Particle RB (Right Bottom) - Purple */}
+901-      <div 
+902-        ref={particleRBRef} 
+903-        className="absolute top-0 left-0 flex items-center justify-center transition-opacity duration-500"
+904-        style={{ width: 0, height: 0 }}
+905-      >
+906-        <div 
+907-          className="absolute right-0 w-32 sm:w-48 md:w-64 h-[1px] bg-gradient-to-l from-purple-500 to-transparent"
+908-          style={{ transformOrigin: 'right center' }}
+909-        />
+910-        <div 
+911-          className="absolute rounded-full bg-purple-500"
+912-          style={{ 
+913-            width: isHovered ? "3px" : "2px",
+914-            height: isHovered ? "3px" : "2px",
+915-            boxShadow: isHovered 
+916-              ? "0 0 16px 4px rgba(168,85,247,0.8), 0 0 4px 1px rgba(168,85,247,1)" 
+917-              : "0 0 10px 2px rgba(168,85,247,0.6)",
+918-          }}
+919-        />
+920-      </div>
+921-
+922-    </div>
+923-  );
+924-};

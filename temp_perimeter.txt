@@ -1,0 +1,151 @@
+750:const PerimeterLightLoop: React.FC<{ isHovered?: boolean }> = ({ isHovered }) => {
+751-  const containerRef = useRef<HTMLDivElement>(null);
+752-  const particleLBRef = useRef<HTMLDivElement>(null);
+753-  const particleLTRef = useRef<HTMLDivElement>(null);
+754-  const particleRTRef = useRef<HTMLDivElement>(null);
+755-  const particleRBRef = useRef<HTMLDivElement>(null);
+756-  
+757-  const progress = useMotionValue(0);
+758-  const lightScale = useMotionValue(1);
+759-  const colorProgress = useMotionValue(0);
+760-  const isReversing = useRef(false);
+761-
+762-  useEffect(() => {
+763-    let isMounted = true;
+764-    let initialLoop = true;
+765-    const run = async () => {
+766-      while (isMounted) {
+767-        if (!initialLoop) {
+768-          animate(lightScale, [1, 1.2, 1], { duration: 0.15, ease: "easeInOut" });
+769-          animate(colorProgress, 0, { duration: 0.15, ease: "easeInOut" });
+770-        }
+771-        initialLoop = false;
+772-        
+773-        isReversing.current = false;
+774-        await animate(progress, 1, { duration: 2.5, ease: "easeInOut" });
+775-        if (!isMounted) break;
+776-        
+777-        await Promise.all([
+778-          animate(lightScale, [1, 1.2, 1], { duration: 0.15, ease: "easeInOut" }),
+779-          animate(colorProgress, 1, { duration: 0.15, ease: "easeInOut" })
+780-        ]);
+781-        if (!isMounted) break;
+782-        
+783-        isReversing.current = true;
+784-        await animate(progress, 0, { duration: 2.5, ease: "easeInOut" });
+785-        if (!isMounted) break;
+786-      }
+787-    };
+788-    run();
+789-    
+790-    return () => {
+791-      isMounted = false;
+792-    };
+793-  }, [progress, lightScale, colorProgress]);
+794-
+795-  useAnimationFrame(() => {
+796-    if (!containerRef.current) return;
+797-    const pLB = particleLBRef.current;
+798-    const pLT = particleLTRef.current;
+799-    const pRT = particleRTRef.current;
+800-    const pRB = particleRBRef.current;
+801-    if (!pLB || !pLT || !pRT || !pRB) return;
+802-    
+803-    const w = containerRef.current.clientWidth;
+804-    const h = containerRef.current.clientHeight;
+805-    const r = 32; 
+806-    const inset = 1; 
+807-    
+808-    const pVal = progress.get();
+809-    const sVal = lightScale.get();
+810-    const cVal = colorProgress.get();
+811-    
+812-    const scaleX = isReversing.current ? -1 : 1;
+813-    
+814-    const ptLB = getEdgePathPoint(pVal, w, h, r, inset, 'LB');
+815-    pLB.style.transform = `translate3d(${ptLB.x}px, ${ptLB.y}px, 0) rotate(${ptLB.angle}deg) scaleX(${scaleX}) scale(${sVal})`;
+816-    
+817-    const ptLT = getEdgePathPoint(pVal, w, h, r, inset, 'LT');
+818-    pLT.style.transform = `translate3d(${ptLT.x}px, ${ptLT.y}px, 0) rotate(${ptLT.angle}deg) scaleX(${scaleX}) scale(${sVal})`;
+819-    
+820-    const ptRT = getEdgePathPoint(pVal, w, h, r, inset, 'RT');
+821-    pRT.style.transform = `translate3d(${ptRT.x}px, ${ptRT.y}px, 0) rotate(${ptRT.angle}deg) scaleX(${scaleX}) scale(${sVal})`;
+822-    
+823-    const ptRB = getEdgePathPoint(pVal, w, h, r, inset, 'RB');
+824-    pRB.style.transform = `translate3d(${ptRB.x}px, ${ptRB.y}px, 0) rotate(${ptRB.angle}deg) scaleX(${scaleX}) scale(${sVal})`;
+825-
+826-    const setLayerOpacity = (el: HTMLDivElement, blueOp: number, purpleOp: number) => {
+827-      const blueLayer = el.querySelector('.blue-layer') as HTMLDivElement;
+828-      const purpleLayer = el.querySelector('.purple-layer') as HTMLDivElement;
+829-      if (blueLayer) blueLayer.style.opacity = blueOp.toString();
+830-      if (purpleLayer) purpleLayer.style.opacity = purpleOp.toString();
+831-    };
+832-
+833-    setLayerOpacity(pLT, cVal, 1 - cVal);
+834-    setLayerOpacity(pLB, 1 - cVal, cVal);
+835-    setLayerOpacity(pRT, 1 - cVal, cVal);
+836-    setLayerOpacity(pRB, cVal, 1 - cVal);
+837-  });
+838-
+839-  const renderMarble = (ref: React.RefObject<HTMLDivElement>, id: string) => (
+840-    <div 
+841-      ref={ref} 
+842-      className="absolute top-0 left-0 flex items-center justify-center transition-opacity duration-500"
+843-      style={{ width: 0, height: 0, opacity: isHovered ? 0.8 : 0.4 }}
+844-      data-id={id}
+845-    >
+846-      <div className="absolute inset-0 flex items-center justify-center blue-layer">
+847-        <div 
+848-          className="absolute right-0 w-32 sm:w-48 md:w-64 h-[1px] bg-gradient-to-l from-blue-500 to-transparent"
+849-          style={{ transformOrigin: 'right center' }}
+850-        />
+851-        <div 
+852-          className="absolute rounded-full bg-blue-500"
+853-          style={{ 
+854-            width: isHovered ? "3px" : "2px",
+855-            height: isHovered ? "3px" : "2px",
+856-            boxShadow: isHovered 
+857-              ? "0 0 16px 4px rgba(59,130,246,0.8), 0 0 4px 1px rgba(59,130,246,1)" 
+858-              : "0 0 10px 2px rgba(59,130,246,0.6)",
+859-          }}
+860-        />
+861-      </div>
+862-      <div className="absolute inset-0 flex items-center justify-center purple-layer">
+863-        <div 
+864-          className="absolute right-0 w-32 sm:w-48 md:w-64 h-[1px] bg-gradient-to-l from-purple-500 to-transparent"
+865-          style={{ transformOrigin: 'right center' }}
+866-        />
+867-        <div 
+868-          className="absolute rounded-full bg-purple-500"
+869-          style={{ 
+870-            width: isHovered ? "3px" : "2px",
+871-            height: isHovered ? "3px" : "2px",
+872-            boxShadow: isHovered 
+873-              ? "0 0 16px 4px rgba(168,85,247,0.8), 0 0 4px 1px rgba(168,85,247,1)" 
+874-              : "0 0 10px 2px rgba(168,85,247,0.6)",
+875-          }}
+876-        />
+877-      </div>
+878-    </div>
+879-  );
+880-
+881-  return (
+882-    <div ref={containerRef} className="absolute inset-0 pointer-events-none z-10 rounded-[2rem] overflow-hidden">
+883-      {/* TOP-LEFT ZONE */}
+884-      <div className="absolute inset-0 pointer-events-none" style={{ clipPath: 'polygon(0 0, 50% 0, 50% 50%, 0 50%)' }}>
+885-        {renderMarble(particleLTRef, 'LT')}
+886-      </div>
+887-
+888-      {/* BOTTOM-LEFT ZONE */}
+889-      <div className="absolute inset-0 pointer-events-none" style={{ clipPath: 'polygon(0 50%, 50% 50%, 50% 100%, 0 100%)' }}>
+890-        {renderMarble(particleLBRef, 'LB')}
+891-      </div>
+892-
+893-      {/* TOP-RIGHT ZONE */}
+894-      <div className="absolute inset-0 pointer-events-none" style={{ clipPath: 'polygon(50% 0, 100% 0, 100% 50%, 50% 50%)' }}>
+895-        {renderMarble(particleRTRef, 'RT')}
+896-      </div>
+897-
+898-      {/* BOTTOM-RIGHT ZONE */}
+899-      <div className="absolute inset-0 pointer-events-none" style={{ clipPath: 'polygon(50% 50%, 100% 50%, 100% 100%, 50% 100%)' }}>
+900-        {renderMarble(particleRBRef, 'RB')}

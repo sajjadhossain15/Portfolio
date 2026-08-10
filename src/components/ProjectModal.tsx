@@ -20,25 +20,25 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose, on
   const [lightingTheme, setLightingTheme] = useState<'obsidian' | 'studio' | 'sunset'>('obsidian');
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10 bg-[#0A0A0B]/90 backdrop-blur-2xl animate-in fade-in duration-300">
-      <div className="liquid-glass border border-[#C9C2B4]/30 rounded-2xl max-w-5xl w-full h-full max-h-[90vh] flex flex-col overflow-hidden relative shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10 bg-[#000000]/90 backdrop-blur-2xl animate-in fade-in duration-300">
+      <div className="glass-card-large border border-[#232326] hover:border-[#C9C2B4]/30 rounded-[24px] max-w-5xl w-full h-full max-h-[90vh] flex flex-col overflow-hidden relative shadow-2xl transition-colors">
         
         {/* Header Bar */}
-        <div className="px-6 py-4 border-b border-[#232326] flex items-center justify-between shrink-0 bg-[#0A0A0B]/60">
-          <div className="flex items-center gap-3">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-[#C9C2B4] border border-[#232326] px-2.5 py-1 rounded-md">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-[#232326] flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 shrink-0 bg-[#000000]/60">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest text-[#C9C2B4] border border-[#232326] px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full">
               {project.category}
             </span>
-            <span className="text-xs text-[#8B8B8D] hidden sm:inline">•</span>
-            <span className="text-xs text-[#8B8B8D] hidden sm:inline">{project.client}</span>
+            <span className="text-xs text-[#8B8B8D] hidden xs:inline">•</span>
+            <span className="text-xs text-[#8B8B8D] hidden xs:inline">{project.client}</span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 ml-auto">
             {/* Tabs */}
-            <div className="flex items-center gap-1 bg-[#141416] p-1 rounded-lg border border-[#232326]">
+            <div className="flex items-center gap-1 bg-[#141416] p-1 rounded-xl border border-[#232326]">
               <button
                 onClick={() => setActiveTab('overview')}
-                className={`px-3 py-1 rounded-md text-xs tracking-wider uppercase transition-all ${
+                className={`px-2.5 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs tracking-wider uppercase transition-all ${
                   activeTab === 'overview' ? 'bg-[#C9C2B4] text-[#0A0A0B] font-semibold' : 'text-[#8B8B8D] hover:text-[#F4F3EF]'
                 }`}
               >
@@ -46,7 +46,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose, on
               </button>
               <button
                 onClick={() => setActiveTab('simulation')}
-                className={`px-3 py-1 rounded-md text-xs tracking-wider uppercase transition-all flex items-center gap-1.5 ${
+                className={`px-2.5 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs tracking-wider uppercase transition-all flex items-center gap-1.5 ${
                   activeTab === 'simulation' ? 'bg-[#C9C2B4] text-[#0A0A0B] font-semibold' : 'text-[#8B8B8D] hover:text-[#F4F3EF]'
                 }`}
               >
@@ -55,7 +55,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose, on
               </button>
               <button
                 onClick={() => setActiveTab('gallery')}
-                className={`px-3 py-1 rounded-md text-xs tracking-wider uppercase transition-all ${
+                className={`px-2.5 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs tracking-wider uppercase transition-all ${
                   activeTab === 'gallery' ? 'bg-[#C9C2B4] text-[#0A0A0B] font-semibold' : 'text-[#8B8B8D] hover:text-[#F4F3EF]'
                 }`}
               >
@@ -66,9 +66,9 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose, on
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="p-2 rounded-lg border border-[#232326] text-[#8B8B8D] hover:text-[#F4F3EF] hover:border-[#C9C2B4] transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg border border-[#232326] text-[#8B8B8D] hover:text-[#F4F3EF] hover:border-[#C9C2B4] active:scale-95 transition-all"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>
@@ -81,7 +81,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose, on
             <div className="space-y-10 animate-in fade-in duration-300">
               
               {/* Media Hero Stage */}
-              <div className="aspect-video w-full rounded-2xl overflow-hidden relative bg-[#141416] border border-[#232326] group">
+              <div className="aspect-video w-full rounded-[20px] overflow-hidden relative bg-[#141416] border border-[#232326] group">
                 {project.videoUrl ? (
                   <video
                     className="w-full h-full object-cover"
@@ -102,10 +102,10 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose, on
                 
                 <div className="absolute bottom-6 left-6 right-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                   <div>
-                    <span className="text-xs uppercase tracking-widest text-[#C9C2B4] block mb-1">
+                    <span className="font-mono text-label text-[#C9C2B4] block mb-1">
                       {project.tag} — {project.year}
                     </span>
-                    <h3 className="font-serif-custom text-2xl sm:text-4xl text-[#F4F3EF]">
+                    <h3 className="font-sans text-h2 font-medium text-[#F4F3EF]">
                       {project.title}
                     </h3>
                   </div>
@@ -117,10 +117,10 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose, on
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {project.stats.map((stat) => (
                     <div key={stat.label} className="p-5 rounded-xl border border-[#232326] bg-[#141416]/50">
-                      <span className="text-[10px] uppercase tracking-widest text-[#8B8B8D] block mb-1">
+                      <span className="font-mono text-micro text-[#8B8B8D] block mb-1">
                         {stat.label}
                       </span>
-                      <span className="font-serif-custom text-2xl sm:text-3xl text-[#C9C2B4]">
+                      <span className="font-sans text-h2 font-medium text-[#C9C2B4]">
                         {stat.value}
                       </span>
                     </div>
@@ -131,22 +131,22 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose, on
               {/* Brief & Narrative */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-[#232326] pt-8">
                 <div>
-                  <h4 className="text-xs uppercase tracking-[0.2em] text-[#8B8B8D] mb-3">The Brief</h4>
-                  <p className="text-sm text-[#F4F3EF] leading-relaxed">{project.brief}</p>
+                  <h4 className="font-mono text-label text-[#8B8B8D] mb-3">The Brief</h4>
+                  <p className="font-sans text-body text-[#F4F3EF]">{project.brief}</p>
                 </div>
                 <div>
-                  <h4 className="text-xs uppercase tracking-[0.2em] text-[#8B8B8D] mb-3">Design Concept</h4>
-                  <p className="text-sm text-[#F4F3EF] leading-relaxed">{project.concept}</p>
+                  <h4 className="font-mono text-label text-[#8B8B8D] mb-3">Design Concept</h4>
+                  <p className="font-sans text-body text-[#F4F3EF]">{project.concept}</p>
                 </div>
               </div>
 
               {/* Key Results */}
               {project.results && (
                 <div className="border-t border-[#232326] pt-8">
-                  <h4 className="text-xs uppercase tracking-[0.2em] text-[#8B8B8D] mb-4">Impact &amp; Recognition</h4>
+                  <h4 className="font-mono text-label text-[#8B8B8D] mb-4">Impact &amp; Recognition</h4>
                   <div className="space-y-3">
                     {project.results.map((res, idx) => (
-                      <div key={idx} className="flex items-start gap-3 text-xs sm:text-sm text-[#F4F3EF]">
+                      <div key={idx} className="flex items-start gap-3 font-sans text-body text-[#F4F3EF]">
                         <CheckCircle2 className="w-4 h-4 text-[#C9C2B4] shrink-0 mt-0.5" />
                         <span>{res}</span>
                       </div>
@@ -162,7 +162,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose, on
             <div className="space-y-8 animate-in fade-in duration-300">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  <h4 className="font-serif-custom text-2xl text-[#F4F3EF]">Interactive Asset View</h4>
+                  <h4 className="font-sans text-h3 font-medium text-[#F4F3EF]">Interactive Asset View</h4>
                   <p className="text-xs text-[#8B8B8D] mt-1">
                     Adjust material roughness, wireframe, and lighting profiles in real-time.
                   </p>
@@ -171,11 +171,11 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose, on
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* 3D View Canvas */}
-                <div className="lg:col-span-2 aspect-video w-full rounded-2xl overflow-hidden relative bg-[#141416] border border-[#232326] flex items-center justify-center p-6">
+                <div className="lg:col-span-2 aspect-video w-full rounded-[20px] overflow-hidden relative bg-[#141416] border border-[#232326] flex items-center justify-center p-6">
                   
                   {/* Procedural Render Simulation Box */}
                   <div 
-                    className={`w-64 h-64 rounded-2xl relative transition-all duration-700 flex items-center justify-center ${
+                    className={`w-64 h-64 rounded-[20px] relative transition-all duration-700 flex items-center justify-center ${
                       wireframe ? 'border-2 border-dashed border-[#C9C2B4]' : 'border border-[#232326]'
                     }`}
                     style={{
@@ -190,7 +190,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose, on
                     <img
                       src={project.heroImage}
                       alt="Sim"
-                      className={`w-full h-full object-cover rounded-2xl transition-all duration-500 ${
+                      className={`w-full h-full object-cover rounded-[20px] transition-all duration-500 ${
                         wireframe ? 'opacity-20 filter grayscale invert' : 'opacity-80'
                       }`}
                       style={{
@@ -206,7 +206,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose, on
                 </div>
 
                 {/* Controls Column */}
-                <div className="space-y-6 bg-[#141416]/50 p-6 rounded-2xl border border-[#232326]">
+                <div className="space-y-6 bg-[#141416]/50 p-6 rounded-[20px] border border-[#232326]">
                   <h5 className="text-xs uppercase tracking-[0.2em] text-[#8B8B8D]">Shader Controls</h5>
                   
                   {/* Wireframe Toggle */}
@@ -317,7 +317,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose, on
           <img
             src={selectedGalleryImg}
             alt="Enlarged view"
-            className="max-w-full max-h-full rounded-xl object-contain shadow-2xl"
+            className="max-w-full max-h-full rounded-[20px] object-contain shadow-2xl"
           />
         </div>
       )}

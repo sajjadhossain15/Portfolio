@@ -163,7 +163,9 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
 
   const containerRef = useRef<HTMLDivElement>(null);
   const orbitWrapperRef = useRef<HTMLDivElement>(null);
+  const videoContainerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const typoRefs = useRef<(HTMLDivElement | null)[]>([]);
   const cardBoostsRef = useRef<{ z: number; scale: number }[]>([]);
   const cardHoverProgressRef = useRef<{ progress: number }[]>([]);
   const cardSweepProgressRef = useRef<{ [key: number]: { pos: number; opacity: number } }>({});
@@ -182,7 +184,7 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
     gsap.to(targetObj, {
       pos: 1,
       duration: 0.25, // 250ms single pass
-      ease: 'power2.out',
+      ease: 'cubic-bezier(0.16, 1, 0.3, 1)',
       onUpdate: () => {
         const progress = targetObj.pos;
         // Bell-curve opacity envelope: peaks smoothly at 0.14 opacity in the middle, zero at ends
@@ -218,7 +220,15 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
         gsap.to(orbitWrapperRef.current, {
           transform: 'translate3d(0, 0, 0px) scale(1)',
           duration: 0.85,
-          ease: 'power2.out',
+          ease: 'cubic-bezier(0.16, 1, 0.3, 1)',
+        });
+      }
+      if (videoContainerRef.current) {
+        gsap.killTweensOf(videoContainerRef.current);
+        gsap.to(videoContainerRef.current, {
+          scale: 1.0,
+          duration: 0.85,
+          ease: 'cubic-bezier(0.16, 1, 0.3, 1)',
         });
       }
     }, 5000);
@@ -233,30 +243,54 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
     }
 
     gsap.killTweensOf(orbitWrapperRef.current);
+    if (videoContainerRef.current) {
+      gsap.killTweensOf(videoContainerRef.current);
+    }
     orbitStateRef.current = targetState;
 
     if (targetState === 'swipe') {
       gsap.to(orbitWrapperRef.current, {
         transform: 'translate3d(0, 0, 72px) scale(1.17)',
         duration: 0.5,
-        ease: 'power2.out',
+        ease: 'cubic-bezier(0.16, 1, 0.3, 1)',
       });
+      if (videoContainerRef.current) {
+        gsap.to(videoContainerRef.current, {
+          scale: 1.06,
+          duration: 0.5,
+          ease: 'cubic-bezier(0.16, 1, 0.3, 1)',
+        });
+      }
     } else if (targetState === 'resting') {
       gsap.to(orbitWrapperRef.current, {
         transform: 'translate3d(0, 0, 60px) scale(1.15)',
         duration: 0.85,
-        ease: 'power2.out',
+        ease: 'cubic-bezier(0.16, 1, 0.3, 1)',
         onComplete: () => {
           resetIdleTimer();
         },
       });
+      if (videoContainerRef.current) {
+        gsap.to(videoContainerRef.current, {
+          scale: 1.0,
+          duration: 0.85,
+          ease: 'cubic-bezier(0.16, 1, 0.3, 1)',
+        });
+      }
       resetIdleTimer();
     } else if (targetState === 'default') {
       gsap.to(orbitWrapperRef.current, {
         transform: 'translate3d(0, 0, 0px) scale(1)',
         duration: 0.85,
-        ease: 'power2.out',
+        ease: 'cubic-bezier(0.16, 1, 0.3, 1)',
       });
+      if (videoContainerRef.current) {
+        gsap.to(videoContainerRef.current, {
+          scale: 1.0,
+          duration: 0.85,
+          ease: 'cubic-bezier(0.16, 1, 0.3, 1)',
+        });
+      }
     }
   }, [resetIdleTimer]);
 
@@ -370,13 +404,18 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
 
   // Main 60 FPS 3D Spherical Orbit & Perspective Render Loop
   const updateOrbit = useCallback(() => {
-    // 1. Gentle auto-rotation in reverse direction (continues during hover, pauses only while dragging)
-    if (isAutoRotating && !isDragging && !activePortalModal) {
-      angleRef.current += velocityRef.current - 0.0018;
-
+    if (!isDragging && !activePortalModal) {
+      // Always apply momentum coasting when not dragging for effortless swipe
+      angleRef.current += velocityRef.current;
       velocityRef.current *= 0.94; // Physical friction damping
+      
       if (Math.abs(velocityRef.current) <= 0.00005) {
         velocityRef.current = 0;
+      }
+
+      // Add base auto-rotation only if active
+      if (isAutoRotating) {
+        angleRef.current -= 0.0018;
       }
     }
 
@@ -390,15 +429,35 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
     leanRef.current += (targetLean - leanRef.current) * 0.12;
 
     const currentAngle = angleRef.current;
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-    const isTablet = typeof window !== 'undefined' && window.innerWidth < 1024;
+    const vw = typeof window !== 'undefined' ? window.innerWidth : 1200;
 
     // Organic edge breathing cycle (2-3% modulation over ~7s cycle)
     const breathVal = (Math.sin(Date.now() * 0.0009) + 1) / 2;
 
-    // Radius specs for 3D Inclined Orbital Ring (45° tilt down from back)
-    const radiusX = isMobile ? 260 : isTablet ? 480 : 640;
-    const radiusZ = isMobile ? 180 : isTablet ? 280 : 360;
+    // Radius specs for 3D Inclined Orbital Ring (45° tilt down from back) - Fluidly scaled for all screen sizes
+    let radiusX = 640;
+    let radiusZ = 360;
+
+    if (vw < 480) {
+      // Mobile narrow (320px - 480px)
+      radiusX = Math.min(145, Math.max(100, vw * 0.35));
+      radiusZ = Math.min(100, Math.max(70, vw * 0.22));
+    } else if (vw < 640) {
+      // Mobile wide (480px - 640px)
+      radiusX = Math.min(220, vw * 0.38);
+      radiusZ = 150;
+    } else if (vw < 1024) {
+      // Tablet (640px - 1024px)
+      radiusX = Math.min(480, vw * 0.48);
+      radiusZ = 260;
+    } else if (vw < 1440) {
+      radiusX = 580;
+      radiusZ = 320;
+    } else {
+      radiusX = 640;
+      radiusZ = 360;
+    }
+
     const tiltSin = 0.7071; // sin(45°)
     const tiltCos = 0.7071; // cos(45°)
 
@@ -522,6 +581,17 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
       cardEl.style.filter = `blur(${blur.toFixed(1)}px) brightness(${brightness}%) saturate(${saturate}%)`;
       cardEl.style.pointerEvents = opacity < 0.15 ? 'none' : 'auto';
       cardEl.style.visibility = opacity <= 0.001 ? 'hidden' : 'visible';
+
+      // Living floating typography motion driven directly inside the 60 FPS updateOrbit animation loop
+      const typoEl = typoRefs.current[i];
+      if (typoEl) {
+        const timeSec = Date.now() * 0.001;
+        const phase = i * 1.5;
+        // Continuous weightless floating sine wave (~4px vertical float, ~2px horizontal drift)
+        const floatY = Math.sin(timeSec * 1.1 + phase) * 4.0;
+        const floatX = Math.cos(timeSec * 0.85 + phase * 1.2) * 2.0;
+        typoEl.style.transform = `translate3d(${floatX.toFixed(2)}px, ${floatY.toFixed(2)}px, 0px)`;
+      }
     });
 
     if (closestFrontIndex !== activeCardIndex && !isDragging && !isSnappingRef.current) {
@@ -542,58 +612,6 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
         hoveredCardIndexRef.current = null;
         setHoveredCardIndex(null);
         setIsHovered(false);
-      }
-    }
-
-    // Synchronize background video playback speed & timeline offset with carousel swipe interaction
-    const video = sectionVideoRef.current;
-    if (video && !video.paused && video.duration > 0) {
-
-      const isUserSwiping = isDragging || isSnappingRef.current || Math.abs(velocityRef.current) > 0.0001;
-      let targetPlaybackRate = 1.0;
-
-      if (isUserSwiping) {
-        const vel = velocityRef.current;
-        if (Math.abs(vel) > 0.0001) {
-          if (vel < 0) {
-            // Swiping right: advance animation timeline faster
-            targetPlaybackRate = Math.min(3.0, 1.0 + Math.abs(vel) * 160);
-          } else {
-            // Swiping left: decelerate animation timeline
-            targetPlaybackRate = Math.max(0.15, 1.0 - Math.abs(vel) * 160);
-          }
-        } else if (isDragging) {
-          const dragDelta = angleRef.current - dragStartAngleRef.current;
-          if (dragDelta < 0) {
-            targetPlaybackRate = Math.min(2.5, 1.0 + Math.abs(dragDelta) * 2.0);
-          } else {
-            targetPlaybackRate = Math.max(0.2, 1.0 - Math.abs(dragDelta) * 2.0);
-          }
-        }
-      }
-
-      // Smoothly blend playbackRate back to normal 1.0x when swipe ends
-      currentPlaybackRateRef.current += (targetPlaybackRate - currentPlaybackRateRef.current) * 0.1;
-      if (Math.abs(video.playbackRate - currentPlaybackRateRef.current) > 0.01) {
-        video.playbackRate = currentPlaybackRateRef.current;
-      }
-
-      // Smooth timeline adjustment during active swipe drag without interrupting seeking
-      if (isDragging && !video.seeking) {
-        const angleDelta = angleRef.current - lastVideoAngleRef.current;
-        if (Math.abs(angleDelta) > 0.012) {
-          const duration = video.duration;
-          const timeShift = (-angleDelta / (2 * Math.PI)) * (duration * 0.4);
-          let newTime = video.currentTime + timeShift;
-          newTime = ((newTime % duration) + duration) % duration;
-
-          if (Math.abs(video.currentTime - newTime) > 0.06) {
-            video.currentTime = newTime;
-            lastVideoAngleRef.current = angleRef.current;
-          }
-        }
-      } else {
-        lastVideoAngleRef.current = angleRef.current;
       }
     }
 
@@ -628,7 +646,7 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
     gsap.to(angleRef, {
       current: targetAngle,
       duration: 1.1,
-      ease: 'power3.out',
+      ease: 'cubic-bezier(0.16, 1, 0.3, 1)',
       onComplete: () => {
         isSnappingRef.current = false;
         setActiveCardIndex(index);
@@ -671,14 +689,15 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
   const handleMove = (clientX: number) => {
     if (!isDragging) return;
     const deltaX = clientX - dragStartXRef.current;
-    const sens = typeof window !== 'undefined' && window.innerWidth < 640 ? 0.0030 : 0.0018;
+    // Increase sensitivity to make dragging feel lighter and more effortless
+    const sens = typeof window !== 'undefined' && window.innerWidth < 640 ? 0.0045 : 0.0035;
     angleRef.current = dragStartAngleRef.current + deltaX * sens;
 
     const now = performance.now();
     const dt = now - lastTimeRef.current;
     if (dt > 8) {
       const dx = clientX - lastXRef.current;
-      velocityRef.current = (dx / dt) * sens * 14;
+      velocityRef.current = (dx / dt) * sens * 18; // Increased momentum transfer
       lastXRef.current = clientX;
       lastTimeRef.current = now;
     }
@@ -703,90 +722,104 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
     <section
       ref={sectionRef}
       id="disciplines"
-      className="bg-[#000000] text-[#F4F3EF] py-12 sm:py-16 relative overflow-hidden select-none"
+      className="relative w-full min-h-[100svh] flex flex-col justify-center bg-[#000000] text-[#F4F3EF] py-12 lg:py-16 overflow-hidden select-none"
     >
-      {/* Capabilities Section Background - Video Stream */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        {/* Direct Google Drive video stream with fallback */}
-        <video
-          ref={sectionVideoRef}
-          loop
-          muted
-          playsInline
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover opacity-35 mix-blend-screen filter brightness-[0.75] contrast-[1.10]"
-          onEnded={(e) => {
-            e.currentTarget.currentTime = 0;
-            e.currentTarget.play().catch(() => {});
-          }}
-        >
-          <source src="https://assets.mixkit.co/videos/preview/mixkit-abstract-3d-sphere-animation-41487-large.mp4" type="video/mp4" />
-          <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4" />
-          <source src="https://lh3.googleusercontent.com/d/1UdyVu0XH1vyB9cGWn_rqGH5CWXifnO2d" type="video/mp4" />
-        </video>
-
-        {/* Embedded Google Drive player iframe as reliable fallback */}
-        <iframe
-          src="https://drive.google.com/file/d/1UdyVu0XH1vyB9cGWn_rqGH5CWXifnO2d/preview"
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160%] h-[160%] min-w-full min-h-full object-cover border-0 opacity-30 mix-blend-screen pointer-events-none scale-110 filter brightness-[0.70] contrast-[1.15]"
-          allow="fullscreen"
-          title="Capabilities Background Media"
-        />
-
-        {/* Elegant gradient vignettes for high-contrast typography and cards */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#000000] via-[#000000]/60 to-[#000000]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.1)_0%,rgba(0,0,0,0.80)_100%)]" />
-      </div>
-
-      <div className="max-w-[1600px] mx-auto px-6 sm:px-12 md:px-16 relative z-10">
+      <div className="site-container relative z-10">
         
         {/* Section Header */}
-        <div className="mb-8 sm:mb-12 border-b border-[#1C1C1E] pb-6 flex items-center justify-between relative z-10">
+        <div className="mb-10 sm:mb-12 lg:mb-16 flex items-center justify-between relative z-10">
           <div>
-            <h2 className="font-sans text-xl sm:text-2xl md:text-3xl font-normal text-white/95 tracking-tight">
+            <h2 className="font-sans text-h2 font-medium text-[#F4F3EF]">
               Capabilities
             </h2>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <span className="text-xs sm:text-sm font-sans text-neutral-400 tracking-wide hidden sm:inline-block">
-              Explore our core strengths
-            </span>
           </div>
         </div>
 
         {/* 3D Orbital Carousel Stage Wrapper */}
         <div className="relative w-full h-[520px] sm:h-[600px] md:h-[660px] flex flex-col justify-between">
+          {/* Capabilities Section Background - Video Stream (Aligned to Orbit Center) */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[100vw] h-[160%] min-h-[750px] z-0 overflow-hidden pointer-events-none flex items-center justify-center">
+            <div
+              ref={videoContainerRef}
+              className="w-full h-full flex items-center justify-center relative will-change-transform"
+            >
+              {/* Direct GitHub CDN video stream with fallback */}
+              <video
+                ref={sectionVideoRef}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                className="w-full h-full object-cover object-center opacity-45 mix-blend-screen filter brightness-[0.90] contrast-[1.10]"
+                onLoadedMetadata={(e) => {
+                  const v = e.currentTarget;
+                  console.log('[Capabilities Video loadedmetadata]', { readyState: v.readyState, networkState: v.networkState, paused: v.paused });
+                  v.muted = true;
+                  v.play().catch((err) => console.log('[Capabilities Video play catch]', err));
+                }}
+                onLoadedData={(e) => {
+                  const v = e.currentTarget;
+                  console.log('[Capabilities Video loadeddata]', { readyState: v.readyState, networkState: v.networkState, paused: v.paused, error: v.error });
+                }}
+                onCanPlay={(e) => {
+                  const v = e.currentTarget;
+                  console.log('[Capabilities Video canplay]', { readyState: v.readyState, networkState: v.networkState, paused: v.paused, error: v.error });
+                  v.play().catch((err) => console.log('[Capabilities Video play catch on canplay]', err));
+                }}
+                onPlay={(e) => {
+                  const v = e.currentTarget;
+                  console.log('[Capabilities Video play event]', { readyState: v.readyState, networkState: v.networkState, paused: v.paused });
+                }}
+                onPause={(e) => {
+                  const v = e.currentTarget;
+                  console.log('[Capabilities Video pause event]', { readyState: v.readyState, networkState: v.networkState, paused: v.paused });
+                }}
+                onError={(e) => {
+                  const v = e.currentTarget;
+                  console.log('[Capabilities Video error event]', { readyState: v.readyState, networkState: v.networkState, paused: v.paused, error: v.error });
+                }}
+                onEnded={(e) => {
+                  e.currentTarget.currentTime = 0;
+                  e.currentTarget.play().catch(() => {});
+                }}
+              >
+                <source src="https://files.catbox.moe/8ysmvv.mp4" type="video/mp4" />
+                <source src="/videos/capabilities-background.mp4" type="video/mp4" />
+                <source src="/capabilities-video.mp4" type="video/mp4" />
+                <source src="https://assets.mixkit.co/videos/preview/mixkit-abstract-3d-sphere-animation-41487-large.mp4" type="video/mp4" />
+              </video>
+
+              {/* Elegant gradient vignettes for high-contrast typography and cards */}
+              <div className="absolute inset-0 bg-gradient-to-b from-[#000000] via-[#000000]/60 to-[#000000]" />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.1)_0%,rgba(0,0,0,0.80)_100%)]" />
+            </div>
+          </div>
           {/* 3D Orbital Carousel Interactive Stage (Tilted Orbital System) */}
           <div
             ref={containerRef}
-            onMouseDown={(e) => handleStart(e.clientX)}
-            onMouseMove={(e) => {
+            onPointerDown={(e) => {
+              e.currentTarget.setPointerCapture(e.pointerId);
+              handleStart(e.clientX);
+            }}
+            onPointerMove={(e) => {
               if (isDragging) {
                 handleMove(e.clientX);
               }
             }}
-            onMouseUp={handleEnd}
-            onMouseLeave={() => {
-              if (isDragging) {
-                handleEnd();
-              }
+            onPointerUp={(e) => {
+              e.currentTarget.releasePointerCapture(e.pointerId);
+              handleEnd();
             }}
-            onTouchStart={(e) => {
-              if (e.touches.length === 1) {
-                handleStart(e.touches[0].clientX);
-              }
+            onPointerCancel={(e) => {
+              e.currentTarget.releasePointerCapture(e.pointerId);
+              handleEnd();
             }}
-            onTouchMove={(e) => {
-              if (e.touches.length === 1 && isDragging) {
-                handleMove(e.touches[0].clientX);
-              }
-            }}
-            onTouchEnd={handleEnd}
-            className="relative z-10 w-full h-[440px] sm:h-[500px] flex items-center justify-center cursor-grab active:cursor-grabbing my-auto"
+            className="relative z-10 w-full h-[440px] sm:h-[500px] flex items-center justify-center cursor-grab active:cursor-grabbing my-auto touch-pan-y"
             style={{ 
               perspective: '1200px',
               transformStyle: 'preserve-3d',
+              touchAction: 'pan-y', // Prevents horizontal scroll sticking on mobile
             }}
           >
             {/* Dedicated OrbitWrapper - Receives GSAP camera/orbit transforms */}
@@ -798,6 +831,8 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
 
             {DISCIPLINES.map((discipline, idx) => {
               const isFeaturedFront = activeCardIndex === idx;
+              const isHoveredTarget = hoveredCardIndex === idx;
+              const isCardFocused = hoveredCardIndex !== null ? isHoveredTarget : isFeaturedFront;
 
               return (
                 <div
@@ -816,8 +851,8 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
                     }
                     gsap.to(cardHoverProgressRef.current[idx], {
                       progress: 1,
-                      duration: 0.4,
-                      ease: 'power2.out',
+                      duration: 0.28,
+                      ease: 'cubic-bezier(0.16, 1, 0.3, 1)',
                       overwrite: 'auto',
                     });
                   }}
@@ -830,8 +865,8 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
                     if (cardHoverProgressRef.current[idx]) {
                       gsap.to(cardHoverProgressRef.current[idx], {
                         progress: 0,
-                        duration: 0.5,
-                        ease: 'power1.inOut',
+                        duration: 0.45,
+                        ease: 'cubic-bezier(0.16, 1, 0.3, 1)',
                         overwrite: 'auto',
                       });
                     }
@@ -843,7 +878,7 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
                       rotateToDiscipline(idx);
                     }
                   }}
-                  className="card-container absolute top-1/2 left-1/2 w-[270px] sm:w-[310px] md:w-[330px] h-[165px] sm:h-[190px] md:h-[200px] rounded-[22px] sm:rounded-[26px] p-[1.5px] overflow-hidden cursor-pointer select-none will-change-transform border shadow-[0_25px_60px_rgba(0,0,0,0.85)]"
+                  className="card-container group absolute top-1/2 left-1/2 w-[220px] xs:w-[260px] sm:w-[310px] md:w-[330px] h-[145px] xs:h-[165px] sm:h-[190px] md:h-[200px] rounded-[20px] sm:rounded-[26px] p-[1.5px] overflow-hidden cursor-pointer select-none will-change-transform border shadow-[0_25px_60px_rgba(0,0,0,0.85)]"
                   style={{
                     transformStyle: 'preserve-3d',
                     backfaceVisibility: 'hidden',
@@ -877,7 +912,7 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
 
                   {/* Optical Glass Card Body - Clean Premium Frosted Glass Effect */}
                   <div 
-                    className="relative w-full h-full rounded-[20px] sm:rounded-[24px] overflow-hidden backdrop-blur-3xl p-5 sm:p-6 flex flex-col justify-end z-10 border"
+                    className="relative w-full h-full rounded-[20px] sm:rounded-[24px] overflow-hidden backdrop-blur-3xl p-5 sm:p-6 flex flex-col justify-center items-center text-center z-10 border"
                     style={{
                       borderColor: 'rgba(230, 240, 255, calc(0.16 + var(--hover-p, 0) * 0.22))',
                       backgroundColor: 'rgba(255, 255, 255, calc(0.04 + var(--hover-p, 0) * 0.02))',
@@ -968,8 +1003,8 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
                         playsInline
                         className="absolute inset-0 w-full h-full object-cover pointer-events-none"
                         style={{
-                          filter: 'brightness(calc(0.75 + var(--hover-p, 0) * 0.15)) contrast(1.10)',
-                          opacity: 'calc(0.40 + var(--hover-p, 0) * 0.20)',
+                          filter: 'brightness(calc(0.93 + var(--hover-p, 0) * 0.07)) contrast(1.05)',
+                          opacity: 'calc(0.93 + var(--hover-p, 0) * 0.07)',
                         }}
                       />
                     ) : discipline.previewImage ? (
@@ -978,28 +1013,73 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
                         alt=""
                         className="absolute inset-0 w-full h-full object-cover pointer-events-none"
                         style={{
-                          filter: 'brightness(calc(0.70 + var(--hover-p, 0) * 0.15)) contrast(1.10)',
-                          opacity: 'calc(0.30 + var(--hover-p, 0) * 0.20)',
+                          filter: 'brightness(calc(0.93 + var(--hover-p, 0) * 0.07)) contrast(1.05)',
+                          opacity: 'calc(0.93 + var(--hover-p, 0) * 0.07)',
                         }}
                       />
                     ) : null}
 
-                    {/* Typography ONLY — Pure, Clean Display */}
-                    <div className="relative z-20 max-w-[95%]">
-                      {/* Category Eyebrow */}
-                      <div className="text-[9px] sm:text-[10px] font-mono uppercase tracking-[0.22em] text-neutral-300/80 mb-1 font-semibold">
-                        {discipline.category || 'CAPABILITY'}
+                    {/* Typography ONLY — Pure, Clean Display & Centered Kinetic Emergence */}
+                    <div 
+                      ref={(el) => { typoRefs.current[idx] = el; }}
+                      className="relative z-20 w-full max-w-[92%] mx-auto flex flex-col items-center justify-center text-center pointer-events-none"
+                    >
+                      {/* Main Heading — Weightless float with premium chromatic leak behind */}
+                      <div className="relative">
+                        {/* Chromatic Leak Cyan */}
+                        <h3 
+                          className="absolute inset-0 font-sans text-xl sm:text-2xl font-medium text-transparent leading-[1.05] tracking-tight text-center pointer-events-none animate-chromatic-cyan will-change-[transform,opacity]"
+                          style={{ 
+                            WebkitTextStroke: '1px rgba(0, 240, 255, 0.4)',
+                            animationDelay: `-${(idx * 1.5) % 8.5}s` 
+                          }}
+                          aria-hidden="true"
+                        >
+                          {discipline.name}
+                        </h3>
+                        {/* Chromatic Leak Magenta */}
+                        <h3 
+                          className="absolute inset-0 font-sans text-xl sm:text-2xl font-medium text-transparent leading-[1.05] tracking-tight text-center pointer-events-none animate-chromatic-magenta will-change-[transform,opacity]"
+                          style={{ 
+                            WebkitTextStroke: '1px rgba(255, 0, 90, 0.4)',
+                            animationDelay: `-${(idx * 1.5) % 8.5}s` 
+                          }}
+                          aria-hidden="true"
+                        >
+                          {discipline.name}
+                        </h3>
+                        {/* Main Text (Perfectly clean) */}
+                        <h3 
+                          className={`relative z-10 font-sans text-xl sm:text-2xl font-medium text-white leading-[1.05] tracking-tight text-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
+                            isCardFocused 
+                              ? '-translate-y-1 drop-shadow-[0_4px_16px_rgba(255,255,255,0.3)]' 
+                              : 'translate-y-0 drop-shadow-sm group-hover:-translate-y-1 group-hover:drop-shadow-[0_4px_16px_rgba(255,255,255,0.3)]'
+                          }`}
+                        >
+                          {discipline.name}
+                        </h3>
                       </div>
 
-                      {/* Heading / Title */}
-                      <h3 className="font-serif-custom text-xl sm:text-2xl font-normal text-white leading-[1.15] tracking-tight mb-1.5 drop-shadow-sm">
-                        {discipline.name}
-                      </h3>
-
-                      {/* Description */}
-                      <p className="font-sans text-[11px] sm:text-xs text-neutral-200/90 leading-relaxed font-light line-clamp-2">
-                        {discipline.description}
-                      </p>
+                      {/* Supporting Subheading — Visible preview with soft glass fade starting mid-first-line */}
+                      <div 
+                        className="w-full flex justify-center mt-1.5 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                        style={{
+                          WebkitMaskImage: isCardFocused 
+                            ? 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 100%)' 
+                            : 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 25%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.1) 80%, rgba(0,0,0,0) 100%)',
+                          maskImage: isCardFocused 
+                            ? 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 100%)' 
+                            : 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 25%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.1) 80%, rgba(0,0,0,0) 100%)',
+                        }}
+                      >
+                        <p className={`font-sans text-[11px] sm:text-xs text-neutral-200/90 leading-relaxed font-light text-center max-w-[260px] line-clamp-2 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[transform,opacity,filter] ${
+                          isCardFocused
+                            ? 'opacity-100 translate-y-0 blur-0'
+                            : 'opacity-80 translate-y-1 blur-[0.3px] group-hover:opacity-100 group-hover:translate-y-0 group-hover:blur-0'
+                        }`}>
+                          {discipline.description}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1075,12 +1155,12 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
                 <span>Dedicated Discipline World</span>
               </div>
 
-              <h1 className="font-serif-custom text-4xl sm:text-6xl md:text-8xl font-light text-[#F4F3EF] leading-none tracking-tight">
+              <h1 className="font-sans text-display font-medium text-[#F4F3EF]">
                 {activePortalModal.name}
               </h1>
 
               {activePortalModal.portalWorldQuote && (
-                <blockquote className="font-serif-custom text-xl sm:text-3xl text-[#C9C2B4] italic font-light border-l-2 border-[#3b82f6] pl-6 py-2 leading-relaxed">
+                <blockquote className="font-sans text-h3 font-medium text-[#C9C2B4] border-l-2 border-[#3b82f6] pl-6 py-2">
                   "{activePortalModal.portalWorldQuote}"
                 </blockquote>
               )}
@@ -1114,7 +1194,7 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
                 <a
                   href="#work"
                   onClick={() => setActivePortalModal(null)}
-                  className="bg-[#F4F3EF] text-[#000000] px-8 py-4 rounded-xl text-xs font-mono uppercase tracking-widest font-bold hover:bg-[#3b82f6] transition-all flex items-center gap-2 shadow-2xl"
+                  className="bg-[#F4F3EF] text-[#0A0A0B] px-8 py-4 rounded-lg text-xs font-mono uppercase tracking-widest font-bold hover:bg-[#C9C2B4] transition-all flex items-center gap-2 shadow-2xl active:scale-95"
                 >
                   <span>Explore Featured Works</span>
                   <ArrowUpRight className="w-4 h-4" />
@@ -1123,7 +1203,7 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
                 <a
                   href="#contact"
                   onClick={() => setActivePortalModal(null)}
-                  className="bg-[#0A0A0C]/80 text-[#F4F3EF] border border-[#1C1C1E] px-8 py-4 rounded-xl text-xs font-mono uppercase tracking-widest hover:border-[#3b82f6] transition-all"
+                  className="bg-[#0A0A0B]/80 text-[#F4F3EF] border border-[#232326] px-8 py-4 rounded-lg text-xs font-mono uppercase tracking-widest hover:border-[#C9C2B4] transition-all active:scale-95"
                 >
                   Initiate Commission
                 </a>

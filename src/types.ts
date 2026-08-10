@@ -16,7 +16,7 @@ export interface Project {
   id: string;
   title: string;
   tag: string;
-  category: 'Automotive' | 'Branding' | '3D & VFX' | 'Motion' | 'UI/UX';
+  category: string;
   year: string;
   client: string;
   heroImage: string;

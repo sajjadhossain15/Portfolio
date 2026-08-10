@@ -2,112 +2,100 @@ import { Discipline, Project, Principle, StudioStat, Testimonial } from '../type
 
 export const DISCIPLINES: Discipline[] = [
   {
-    id: 'graphic-design',
-    index: '01',
-    category: 'DESIGN',
-    name: 'Graphic Design',
-    tagline: 'High-contrast editorial layouts and bespoke tactile print artifact design.',
-    description: 'Engineering poster typography, art direction, publication layouts, and physical brand touchpoints with mathematical rigor and haute couture aesthetic.',
-    previewImage: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=1600&q=80',
-    bgVideoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-abstract-3d-sphere-animation-41487-large.mp4',
-    portalWorldQuote: 'Where structural grid systems become living, breathing visual art.',
-    deliverables: ['Publication Layouts', 'Editorial Typography', 'Poster Design', 'Art Direction', 'Tactile Print Artifacts']
-  },
-  {
     id: 'brand-identity',
-    index: '02',
+    index: '01',
     category: 'BRANDING',
     name: 'Brand Identity',
-    tagline: 'Timeless visual systems built from narrative and spatial architecture.',
+    tagline: 'Building distinctive visual systems that make brands recognizable, consistent, and impossible to overlook.',
     description: 'We engineer complete branding systems — from custom logotypes and brand guidelines to digital brand worlds and sensory identity systems.',
     previewImage: 'https://images.unsplash.com/photo-1600132806370-bf17e65e942f?auto=format&fit=crop&w=1600&q=80',
-    bgVideoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-abstract-fast-line-lights-in-darkness-41548-large.mp4',
+    bgVideoUrl: 'https://files.catbox.moe/j2c4az.mp4',
     portalWorldQuote: 'A brand is a living environment that evokes emotion before a single word is read.',
     deliverables: ['Custom Logotypes', 'Brand Architecture', 'Visual Design Guidelines', 'Sensory Brand Worlds', 'Brand Strategy']
   },
   {
     id: 'automotive-design',
-    index: '03',
+    index: '02',
     category: 'AUTOMOTIVE',
     name: 'Automotive Design',
-    tagline: 'Aerodynamic form meets ultra-luxury digital cockpits.',
+    tagline: 'Designing bold automotive experiences where form, motion, interface, and visual attitude move as one.',
     description: 'Conceptual vehicle styling, HMI digital dashboard design, hyper-realistic 3D exterior rendering, and launch film direction for next-gen electric mobility.',
     previewImage: 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1600&q=80',
-    bgVideoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    bgVideoUrl: 'https://files.catbox.moe/cjlclg.mp4',
     portalWorldQuote: 'Sculpting velocity into obsidian glass and light.',
     deliverables: ['Conceptual Vehicle Styling', 'Digital Cockpit HMI', '3D Exterior Rendering', 'Launch Film Direction', 'Aerodynamic Form']
   },
   {
-    id: 'motion-graphics',
+    id: 'ui-ux-design',
+    index: '03',
+    category: 'DIGITAL UI',
+    name: 'UI/UX Design',
+    tagline: 'Turning complex digital experiences into intuitive interfaces that feel effortless to use and impossible to ignore.',
+    description: 'High-craft web platforms, mobile applications, spatial interfaces, and design tokens built for luxury brands and modern software pioneers.',
+    previewImage: 'https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?auto=format&fit=crop&w=1600&q=80',
+    bgVideoUrl: 'https://files.catbox.moe/jz1vp6.mp4',
+    portalWorldQuote: 'Digital interfaces crafted like luxury architectural spaces.',
+    deliverables: ['High-Craft Web Platforms', 'Spatial Interfaces', 'Mobile App UX', 'Design Systems & Tokens', 'Tactile UI Prototypes']
+  },
+  {
+    id: 'motion-design',
     index: '04',
     category: 'MOTION',
-    name: 'Motion Graphics',
-    tagline: 'Rhythmic kinetic design and broadcast motion systems for screen & stage.',
+    name: 'Motion Design',
+    tagline: 'Giving ideas movement through cinematic transitions, expressive animation, and purposeful visual storytelling.',
     description: 'Keynote sequences, kinetic title cards, broadcast idents, and responsive digital interface animations engineered with fluid physics.',
     previewImage: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1600&q=80',
-    bgVideoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-laser-lights-in-a-dark-room-41551-large.mp4',
+    bgVideoUrl: 'https://files.catbox.moe/gzg3st.mp4',
     portalWorldQuote: 'Transforming static graphic geometry into mesmerizing temporal choreography.',
     deliverables: ['Keynote Sequences', 'Kinetic Title Cards', 'Broadcast Idents', 'Interface Motion Systems', 'Fluid Physics FX']
   },
   {
-    id: 'animation',
-    index: '05',
-    category: 'ANIMATION',
-    name: 'Animation',
-    tagline: 'Character, worldbuilding, and frame-by-frame cinematic narrative.',
-    description: 'Narrative short films, commercial spots, stylized 2D hand-drawn frames, and complex 3D character rigging designed to elicit genuine human emotion.',
-    previewImage: 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=1600&q=80',
-    bgVideoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
-    portalWorldQuote: 'Giving soul, weight, and personality to the impossible.',
-    deliverables: ['Narrative Short Films', 'Commercial Animation', 'Stylized 2D Frames', '3D Character Rigging', 'Cinematic Worldbuilding']
-  },
-  {
     id: '3d-visualization',
-    index: '06',
+    index: '05',
     category: '3D & CGI',
-    name: '3D Visualization',
-    tagline: 'Photorealistic CGI and procedural lighting that redefine digital realism.',
+    name: '3D & Visualization',
+    tagline: 'Creating dimensional worlds, objects, and visuals that bring abstract ideas into a tangible visual experience.',
     description: 'Photorealistic CGI, procedural materials, and lighting studies for high-end luxury goods, horology, architecture, and industrial design.',
     previewImage: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1600&q=80',
-    bgVideoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-tunnel-of-futuristic-neon-lights-41550-large.mp4',
+    bgVideoUrl: 'https://files.catbox.moe/rx50nf.mp4',
     portalWorldQuote: 'Bending rays of light to craft uncompromised photorealism.',
     deliverables: ['Photorealistic CGI', 'Procedural Shaders', 'Horology Renders', 'Architectural Lighting', 'Industrial Design Renders']
   },
   {
-    id: 'visual-effects',
+    id: 'campaign-art-direction',
+    index: '06',
+    category: 'DIRECTION',
+    name: 'Campaign & Art Direction',
+    tagline: 'Connecting concept, visual language, and storytelling into campaigns built to capture attention and create impact.',
+    description: 'End-to-end creative direction orchestrating photography, film, digital media, and physical activations into a singular brand narrative.',
+    previewImage: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=1600&q=80',
+    bgVideoUrl: 'https://files.catbox.moe/4h3ve0.mp4',
+    portalWorldQuote: 'Where structural grid systems become living, breathing visual art.',
+    deliverables: ['Campaign Strategy', 'Photography Direction', 'Lookbooks', 'Set Design', 'Media Planning']
+  },
+  {
+    id: 'video-film',
     index: '07',
-    category: 'VFX',
-    name: 'Visual Effects (VFX)',
-    tagline: 'Invisible CGI, particle dynamics, and otherworldly film compositing.',
-    description: 'Seamless green screen compositing, particle simulations, atmospheric lighting, and digital matte painting for film, music, and commercial projects.',
-    previewImage: 'https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?auto=format&fit=crop&w=1600&q=80',
-    bgVideoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-    portalWorldQuote: 'Where real-world cinema seamlessly merges with pure imagination.',
-    deliverables: ['Green Screen Compositing', 'Particle Dynamics', 'Atmospheric Lighting', 'Digital Matte Painting', 'Film & Commercial VFX']
+    category: 'VIDEO',
+    name: 'Video & Film',
+    tagline: 'Crafting visual stories through cinematography, editing, pacing, and motion-driven storytelling.',
+    description: 'Narrative short films, commercial spots, and cinematic storytelling designed to elicit genuine human emotion.',
+    previewImage: 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=1600&q=80',
+    bgVideoUrl: 'https://files.catbox.moe/qc6gsp.mp4',
+    portalWorldQuote: 'Giving soul, weight, and personality to the impossible.',
+    deliverables: ['Narrative Short Films', 'Commercial Production', 'Cinematography', 'Post-Production', 'Cinematic Worldbuilding']
   },
   {
-    id: 'product-visualization',
+    id: 'creative-strategy',
     index: '08',
-    category: 'PRODUCT',
-    name: 'Product Visualization',
-    tagline: 'Tactile luxury product reveals and micro-mechanical macro CGI.',
-    description: 'Highlighting craftsmanship, watchmaking mechanics, luxury packaging, and consumer technology through hyper-detailed macro closeups and studio lighting.',
+    category: 'STRATEGY',
+    name: 'Creative Strategy',
+    tagline: 'Turning ideas into clear creative directions that connect brand purpose with meaningful visual experiences.',
+    description: 'Strategic positioning, audience insight, and brand architecture that forms the foundation of all creative execution.',
     previewImage: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1600&q=80',
-    bgVideoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
+    bgVideoUrl: 'https://files.catbox.moe/zk8c72.mp4',
     portalWorldQuote: 'Capturing the micro-texture of luxury at microscopic precision.',
-    deliverables: ['Macro Closeup Renders', 'Watchmaking Mechanics', 'Luxury Packaging CGI', 'Exploded View Animations', 'Tactile Texture Renders']
-  },
-  {
-    id: 'ui-ux-design',
-    index: '09',
-    category: 'DIGITAL UI',
-    name: 'UI / UX Design',
-    tagline: 'Immersive digital platforms with tactile spatial elegance.',
-    description: 'High-craft web platforms, mobile applications, spatial interfaces, and design tokens built for luxury brands and modern software pioneers.',
-    previewImage: 'https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?auto=format&fit=crop&w=1600&q=80',
-    bgVideoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-tunnel-of-futuristic-neon-lights-41550-large.mp4',
-    portalWorldQuote: 'Digital interfaces crafted like luxury architectural spaces.',
-    deliverables: ['High-Craft Web Platforms', 'Spatial Interfaces', 'Mobile App UX', 'Design Systems & Tokens', 'Tactile UI Prototypes']
+    deliverables: ['Brand Positioning', 'Creative Briefing', 'Market Analysis', 'Visual Strategy', 'Experience Design']
   }
 ];
 
@@ -120,7 +108,7 @@ export const PROJECTS: Project[] = [
     year: '2026',
     client: 'Vantara Electric Mobility',
     heroImage: 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1600&q=80',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    videoUrl: 'https://files.catbox.moe/cjlclg.mp4',
     gallery: [
       'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80',
@@ -147,7 +135,7 @@ export const PROJECTS: Project[] = [
     year: '2025',
     client: 'Noir Atelier Paris',
     heroImage: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1600&q=80',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+    videoUrl: 'https://files.catbox.moe/j2c4az.mp4',
     gallery: [
       'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=80',
@@ -174,7 +162,7 @@ export const PROJECTS: Project[] = [
     year: '2025',
     client: 'Aether Audio',
     heroImage: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1600&q=80',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    videoUrl: 'https://files.catbox.moe/qc6gsp.mp4',
     gallery: [
       'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80',
@@ -201,7 +189,7 @@ export const PROJECTS: Project[] = [
     year: '2025',
     client: 'Geneva Horology Co.',
     heroImage: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1600&q=80',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+    videoUrl: 'https://files.catbox.moe/rx50nf.mp4',
     gallery: [
       'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1200&q=80',
@@ -228,6 +216,7 @@ export const PROJECTS: Project[] = [
     year: '2025',
     client: 'Lumina Vision Labs',
     heroImage: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1600&q=80',
+    videoUrl: 'https://files.catbox.moe/jz1vp6.mp4',
     gallery: [
       'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80'
@@ -252,6 +241,7 @@ export const PROJECTS: Project[] = [
     year: '2024',
     client: 'Apex Racing Team UK',
     heroImage: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1600&q=80',
+    videoUrl: 'https://files.catbox.moe/zk8c72.mp4',
     gallery: [
       'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=1200&q=80'
@@ -266,6 +256,40 @@ export const PROJECTS: Project[] = [
       'Voted "Best Motorsport Livery" by Formula E Fan Choice 2024',
       'Uniform merchandise sales surpassed $2.8M in season 1'
     ]
+  },
+  {
+    id: 'temporal-motion',
+    title: 'Temporal — Motion System',
+    tag: 'Motion Design',
+    category: 'Motion',
+    year: '2024',
+    client: 'Studio Client',
+    heroImage: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1600&q=80',
+    videoUrl: 'https://files.catbox.moe/gzg3st.mp4',
+    gallery: [
+      'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80'
+    ],
+    brief: 'Giving ideas movement through cinematic transitions, expressive animation, and purposeful visual storytelling.',
+    concept: 'Transforming static graphic geometry into mesmerizing temporal choreography.',
+    stats: [],
+    results: []
+  },
+  {
+    id: 'structural-art',
+    title: 'Structural — Art Direction',
+    tag: 'Campaign Direction',
+    category: 'Direction',
+    year: '2024',
+    client: 'Studio Client',
+    heroImage: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=1600&q=80',
+    videoUrl: 'https://files.catbox.moe/4h3ve0.mp4',
+    gallery: [
+      'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=1200&q=80'
+    ],
+    brief: 'End-to-end creative direction orchestrating photography, film, digital media, and physical activations into a singular brand narrative.',
+    concept: 'Where structural grid systems become living, breathing visual art.',
+    stats: [],
+    results: []
   }
 ];
 

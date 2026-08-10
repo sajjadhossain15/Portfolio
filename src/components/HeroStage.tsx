@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowDown, Sparkles } from 'lucide-react';
 
 interface HeroStageProps {
-  onOpenInquiry: () => void;
+  onOpenInquiry?: () => void;
 }
 
-export const HeroStage: React.FC<HeroStageProps> = ({ onOpenInquiry }) => {
+export const HeroStage: React.FC<HeroStageProps> = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const isScrubbingActiveRef = useRef(false);
@@ -13,9 +12,10 @@ export const HeroStage: React.FC<HeroStageProps> = ({ onOpenInquiry }) => {
 
   const [videoSrcIndex, setVideoSrcIndex] = useState(0);
   const videoSources = [
+    'https://files.catbox.moe/04koic.mp4',
+    '/videos/hero-background.mp4',
     '/hero-video.mp4',
     'https://assets.mixkit.co/videos/preview/mixkit-abstract-fast-line-lights-in-darkness-41548-large.mp4',
-    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
   ];
 
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -24,12 +24,10 @@ export const HeroStage: React.FC<HeroStageProps> = ({ onOpenInquiry }) => {
   // Handle video loading errors gracefully by switching to CDN fallback source
   const handleVideoError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
     const videoElem = e.currentTarget;
-    // Ignore abort errors caused by scroll scrubbing or rapid seeking
-    if (videoElem.error && videoElem.error.code === 1) {
+    if (!videoElem.error || videoElem.error.code === 1) {
       return;
     }
     if (videoSrcIndex < videoSources.length - 1) {
-      console.warn(`Hero video load error on source ${videoSources[videoSrcIndex]}. Switching to fallback.`);
       setVideoSrcIndex((prev) => prev + 1);
     }
   };
@@ -60,10 +58,8 @@ export const HeroStage: React.FC<HeroStageProps> = ({ onOpenInquiry }) => {
 
       const video = videoRef.current;
       if (video) {
-        // Keep video muted during scroll
         video.muted = true;
 
-        // Check if video is ready to seek before setting currentTime
         const isReady =
           video.readyState >= 2 &&
           video.seekable &&
@@ -73,7 +69,6 @@ export const HeroStage: React.FC<HeroStageProps> = ({ onOpenInquiry }) => {
 
         if (isReady) {
           if (progress > 0.005) {
-            // User is scrolling: pause video & drive currentTime by scroll
             if (!isScrubbingActiveRef.current) {
               isScrubbingActiveRef.current = true;
               video.pause();
@@ -83,7 +78,6 @@ export const HeroStage: React.FC<HeroStageProps> = ({ onOpenInquiry }) => {
               video.currentTime = targetTime;
             }
           } else {
-            // User is at the top: resume autoplay loop so it plays continuously
             if (isScrubbingActiveRef.current || video.paused) {
               isScrubbingActiveRef.current = false;
               video.play().catch(() => {});
@@ -104,7 +98,6 @@ export const HeroStage: React.FC<HeroStageProps> = ({ onOpenInquiry }) => {
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
-    // Initial calculation
     handleScroll();
 
     return () => {
@@ -118,7 +111,6 @@ export const HeroStage: React.FC<HeroStageProps> = ({ onOpenInquiry }) => {
   const handleLoadedMetadata = () => {
     if (videoRef.current) {
       videoRef.current.muted = true;
-      // Ensure video starts playing automatically on load when at top
       videoRef.current.play().catch(() => {});
     }
   };
@@ -127,14 +119,17 @@ export const HeroStage: React.FC<HeroStageProps> = ({ onOpenInquiry }) => {
     const { clientX, clientY } = e;
     const { innerWidth, innerHeight } = window;
     setMousePos({
-      x: (clientX / innerWidth - 0.5) * 20,
-      y: (clientY / innerHeight - 0.5) * 20,
+      x: (clientX / innerWidth - 0.5) * 16,
+      y: (clientY / innerHeight - 0.5) * 16,
     });
   };
 
   // Layer opacities based on scroll progress
   const heroOpacity = Math.max(0, 1 - scrollProgress * 2.2);
-  const introOpacity = Math.min(1, Math.max(0, (scrollProgress - 0.3) * 2.2));
+  const introOpacity = Math.min(1, Math.max(0, (scrollProgress - 0.70) * 3.8));
+
+  // Subtle depth parallax movement relative to scroll
+  const textParallaxY = scrollProgress * -40;
 
   return (
     <div
@@ -142,11 +137,11 @@ export const HeroStage: React.FC<HeroStageProps> = ({ onOpenInquiry }) => {
       onMouseMove={handleMouseMove}
       className="relative h-[320vh] w-full"
     >
-      <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#0A0A0B] flex items-center justify-center">
+      <div className="sticky top-0 h-[100svh] w-full overflow-hidden bg-[#000000] flex items-center justify-center">
         
-        {/* Background Cosmic Video with Gradient Overlay */}
+        {/* Background Cosmic Video with Optical Vignette Overlay */}
         <div 
-          className="absolute inset-0 w-full h-full transition-transform duration-300 ease-out scale-105"
+          className="absolute inset-0 w-full h-full transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] scale-105"
           style={{
             transform: `translate3d(${mousePos.x * 0.3}px, ${mousePos.y * 0.3}px, 0) scale(1.05)`
           }}
@@ -165,56 +160,59 @@ export const HeroStage: React.FC<HeroStageProps> = ({ onOpenInquiry }) => {
             preload="auto"
           />
           
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0B]/70 via-[#0A0A0B]/20 to-[#0A0A0B]" />
+          {/* Subtle gradient vignette to maintain contrast behind typography without darkening center video */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#000000]/60 via-[#000000]/15 to-transparent pointer-events-none" />
         </div>
 
-        {/* Ambient Radial Glow */}
+        {/* Hero bottom edge soft black blend moving UPWARD 24px into the video */}
         <div 
-          className="absolute inset-0 pointer-events-none opacity-30 transition-all duration-700"
+          className="absolute bottom-0 left-0 right-0 h-[24px] bg-gradient-to-t from-[#000000] via-[#000000]/80 via-40% to-transparent pointer-events-none z-10" 
+          aria-hidden="true"
+        />
+
+        {/* Ambient Subtle Radial Glow */}
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-25 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
           style={{
-            background: `radial-gradient(circle 700px at ${50 + mousePos.x * 0.5}% ${50 + mousePos.y * 0.5}%, rgba(201, 194, 180, 0.18), transparent 80%)`
+            background: `radial-gradient(circle 800px at ${45 + mousePos.x * 0.4}% ${50 + mousePos.y * 0.4}%, rgba(201, 194, 180, 0.15), transparent 75%)`
           }}
         />
 
-        {/* Layer 1: Main Hero Title */}
+        {/* Layer 1: Main Hero Title (Optically Positioned for Visual Balance with F1 Subject) */}
         <div
-          className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 sm:px-12 transition-opacity duration-300 pointer-events-none"
-          style={{ opacity: heroOpacity }}
+          className="absolute inset-0 w-full max-w-7xl mx-auto px-4 sm:px-12 lg:px-24 flex flex-col justify-center items-start transition-opacity duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none z-10"
+          style={{ 
+            opacity: heroOpacity,
+            transform: `translate3d(${mousePos.x * 0.15}px, ${mousePos.y * 0.15 + textParallaxY}px, 0)`
+          }}
         >
-          <h1 className="font-serif-custom font-light text-5xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tight leading-[0.95] max-w-6xl text-[#F4F3EF] mb-8 drop-shadow-2xl">
-            The <em className="italic font-light text-[#C9C2B4] font-serif-custom">Imagination</em>
+          <h1 className="font-sans font-medium text-display text-[#F4F3EF] mb-4 sm:mb-6 drop-shadow-[0_8px_32px_rgba(0,0,0,0.85)] max-w-4xl tracking-[-0.03em] leading-[0.92]">
+            The <span className="font-medium bg-gradient-to-r from-[#60A5FA] via-[#A78BFA] to-[#E879F9] text-transparent bg-clip-text opacity-90">Imagination</span>
             <br />
             Studio
           </h1>
 
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm tracking-[0.2em] uppercase text-[#8B8B8D]">
-            <span>Brand</span>
-            <span className="text-[#C9C2B4]">•</span>
-            <span>Automotive</span>
-            <span className="text-[#C9C2B4]">•</span>
-            <span>3D CGI</span>
-            <span className="text-[#C9C2B4]">•</span>
-            <span>Motion &amp; VFX</span>
-          </div>
-
-          <div className="mt-10 pointer-events-auto">
-            <button
-              onClick={onOpenInquiry}
-              className="liquid-glass border border-[#C9C2B4]/30 hover:border-[#C9C2B4] text-[#F4F3EF] px-8 py-3.5 rounded-xl text-xs uppercase tracking-widest flex items-center gap-3 group transition-all duration-300 hover:scale-105"
-            >
-              <Sparkles className="w-4 h-4 text-[#C9C2B4] group-hover:rotate-12 transition-transform" />
-              <span>Commission A Project</span>
-            </button>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 font-mono text-[9.5px] sm:text-label text-[#8B8B8D] drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)] tracking-wider sm:tracking-[0.15em]">
+            <span>BRAND</span>
+            <span className="text-[#C9C2B4]/60">•</span>
+            <span>AUTOMOTIVE</span>
+            <span className="text-[#C9C2B4]/60">•</span>
+            <span>3D CG</span>
+            <span className="text-[#C9C2B4]/60">•</span>
+            <span>MOTION &amp; VFX</span>
           </div>
         </div>
 
-        {/* Layer 2: Intro Vision Statement (fades in on scroll, positioned in upper third with compact font size) */}
+        {/* Layer 2: Intro Vision Statement (Fades in subtly around 7-7.5s in the upper-third area above orbit midpoint) */}
         <div
-          className="absolute inset-0 flex flex-col items-center justify-start pt-28 sm:pt-36 md:pt-40 text-center px-6 sm:px-12 md:px-20 transition-opacity duration-300 pointer-events-none"
-          style={{ opacity: introOpacity }}
+          className="absolute inset-0 w-full max-w-4xl mx-auto px-4 sm:px-12 lg:px-24 flex flex-col justify-start pt-20 sm:pt-28 lg:pt-36 items-center text-center transition-opacity duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none z-10"
+          style={{ 
+            opacity: introOpacity,
+            transform: `translate3d(0, ${textParallaxY * 0.3}px, 0)`
+          }}
         >
           <div className="max-w-3xl text-center">
-            <p className="font-serif-custom font-light text-base sm:text-xl md:text-2xl lg:text-3xl leading-[1.4] text-[#F4F3EF] drop-shadow-lg">
+            <p className="font-sans font-medium text-h3 text-[#F4F3EF] drop-shadow-[0_6px_24px_rgba(0,0,0,0.95)] leading-[1.12]">
               We don't make graphics.{' '}
               <span className="text-[#8B8B8D]">
                 We build complete visual experiences —
@@ -227,21 +225,13 @@ export const HeroStage: React.FC<HeroStageProps> = ({ onOpenInquiry }) => {
           </div>
         </div>
 
-        {/* Bottom Progress Scrub Bar */}
-        <div className="absolute bottom-6 left-6 right-6 z-30 flex flex-col items-center gap-3 pointer-events-none">
-          <div className="w-full max-w-xl h-1 bg-[#232326] rounded-full overflow-hidden">
+        {/* Quiet Minimal Scroll Progress Scrub Bar */}
+        <div className="absolute bottom-6 left-4 right-4 sm:left-8 sm:right-8 z-20 pointer-events-none flex items-center justify-between opacity-60">
+          <div className="w-full max-w-xs h-[2px] bg-[#232326] rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-[#8B8B8D] via-[#C9C2B4] to-[#F4F3EF] transition-all duration-150"
+              className="h-full bg-[#C9C2B4] transition-all duration-100"
               style={{ width: `${Math.round(scrollProgress * 100)}%` }}
             />
-          </div>
-
-          <div 
-            className="flex items-center gap-2 text-[#8B8B8D] transition-opacity duration-300"
-            style={{ opacity: Math.max(0, 0.8 - scrollProgress * 2) }}
-          >
-            <span className="text-[9px] uppercase tracking-[0.25em]">Scroll to scrub video timeline</span>
-            <ArrowDown className="w-3.5 h-3.5 text-[#C9C2B4] animate-bounce" />
           </div>
         </div>
 
