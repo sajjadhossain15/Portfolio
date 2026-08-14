@@ -165,6 +165,7 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
   const orbitWrapperRef = useRef<HTMLDivElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const cardVideosRef = useRef<(HTMLVideoElement | null)[]>([]);
   const typoRefs = useRef<(HTMLDivElement | null)[]>([]);
   const cardBoostsRef = useRef<{ z: number; scale: number }[]>([]);
   const cardHoverProgressRef = useRef<{ progress: number }[]>([]);
@@ -582,6 +583,19 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
       cardEl.style.pointerEvents = opacity < 0.15 ? 'none' : 'auto';
       cardEl.style.visibility = opacity <= 0.001 ? 'hidden' : 'visible';
 
+      // Play/Pause Video decoding based on card visibility
+      const videoEl = cardVideosRef.current[i];
+      if (videoEl) {
+        if (opacity > 0.001) {
+          if (videoEl.paused) {
+            const playPromise = videoEl.play();
+            if (playPromise !== undefined) playPromise.catch(() => {});
+          }
+        } else {
+          if (!videoEl.paused) videoEl.pause();
+        }
+      }
+
       // Living floating typography motion driven directly inside the 60 FPS updateOrbit animation loop
       const typoEl = typoRefs.current[i];
       if (typoEl) {
@@ -591,6 +605,14 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
         const floatY = Math.sin(timeSec * 1.1 + phase) * 4.0;
         const floatX = Math.cos(timeSec * 0.85 + phase * 1.2) * 2.0;
         typoEl.style.transform = `translate3d(${floatX.toFixed(2)}px, ${floatY.toFixed(2)}px, 0px)`;
+      }
+
+      // Pause unnecessary procedural particle animations on hidden cards
+      if (cardEl) {
+        const particlesContainer = cardEl.querySelector('.particles-container') as HTMLElement;
+        if (particlesContainer) {
+          particlesContainer.style.display = opacity <= 0.001 ? 'none' : 'block';
+        }
       }
     });
 
@@ -741,7 +763,7 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[100vw] h-[160%] min-h-[750px] z-0 overflow-hidden pointer-events-none flex items-center justify-center">
             <div
               ref={videoContainerRef}
-              className="w-full h-full flex items-center justify-center relative will-change-transform"
+              className="w-full h-full flex items-center justify-center relative"
             >
               {/* Direct GitHub CDN video stream with fallback */}
               <video
@@ -750,7 +772,7 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
                 loop
                 muted
                 playsInline
-                preload="auto"
+                preload="metadata"
                 className="w-full h-full object-cover object-center opacity-45 mix-blend-screen filter brightness-[0.90] contrast-[1.10]"
                 onLoadedMetadata={(e) => {
                   const v = e.currentTarget;
@@ -878,7 +900,7 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
                       rotateToDiscipline(idx);
                     }
                   }}
-                  className="card-container group absolute top-1/2 left-1/2 w-[220px] xs:w-[260px] sm:w-[310px] md:w-[330px] h-[145px] xs:h-[165px] sm:h-[190px] md:h-[200px] rounded-[20px] sm:rounded-[26px] p-[1.5px] overflow-hidden cursor-pointer select-none will-change-transform border shadow-[0_25px_60px_rgba(0,0,0,0.85)]"
+                  className="card-container group absolute top-1/2 left-1/2 w-[220px] xs:w-[260px] sm:w-[310px] md:w-[330px] h-[145px] xs:h-[165px] sm:h-[190px] md:h-[200px] rounded-[20px] sm:rounded-[26px] p-[1.5px] overflow-hidden cursor-pointer select-none border shadow-[0_25px_60px_rgba(0,0,0,0.85)]"
                   style={{
                     transformStyle: 'preserve-3d',
                     backfaceVisibility: 'hidden',
@@ -951,7 +973,7 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
                     />
 
                     {/* Procedural Atmospheric Particles Inside Glass Card (Tiny stars, floating dust, fine specks & micro-optical particles) */}
-                    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-90">
+                    <div className="particles-container absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-90">
                       {CARD_ATMOSPHERES[idx].particles.map((p) => {
                         const activitySpeedMult = isFeaturedFront ? 0.86 : 1.0;
                         const floatDur = (p.floatDuration * activitySpeedMult).toFixed(2);
@@ -996,11 +1018,12 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
                     {/* Continuous Card Video / Image Media inside Glass - NEVER pauses or stops on hover */}
                     {discipline.bgVideoUrl ? (
                       <video
+                        ref={(el) => { cardVideosRef.current[idx] = el; }}
                         src={discipline.bgVideoUrl}
-                        autoPlay
                         loop
                         muted
                         playsInline
+                        preload="metadata"
                         className="absolute inset-0 w-full h-full object-cover pointer-events-none"
                         style={{
                           filter: 'brightness(calc(0.93 + var(--hover-p, 0) * 0.07)) contrast(1.05)',
@@ -1028,7 +1051,7 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
                       <div className="relative">
                         {/* Chromatic Leak Cyan */}
                         <h3 
-                          className="absolute inset-0 font-sans text-xl sm:text-2xl font-medium text-transparent leading-[1.05] tracking-tight text-center pointer-events-none animate-chromatic-cyan will-change-[transform,opacity]"
+                          className="absolute inset-0 font-sans text-xl sm:text-2xl font-medium text-transparent leading-[1.05] tracking-tight text-center pointer-events-none animate-chromatic-cyan"
                           style={{ 
                             WebkitTextStroke: '1px rgba(0, 240, 255, 0.4)',
                             animationDelay: `-${(idx * 1.5) % 8.5}s` 
@@ -1039,7 +1062,7 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
                         </h3>
                         {/* Chromatic Leak Magenta */}
                         <h3 
-                          className="absolute inset-0 font-sans text-xl sm:text-2xl font-medium text-transparent leading-[1.05] tracking-tight text-center pointer-events-none animate-chromatic-magenta will-change-[transform,opacity]"
+                          className="absolute inset-0 font-sans text-xl sm:text-2xl font-medium text-transparent leading-[1.05] tracking-tight text-center pointer-events-none animate-chromatic-magenta"
                           style={{ 
                             WebkitTextStroke: '1px rgba(255, 0, 90, 0.4)',
                             animationDelay: `-${(idx * 1.5) % 8.5}s` 
@@ -1050,7 +1073,7 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
                         </h3>
                         {/* Main Text (Perfectly clean) */}
                         <h3 
-                          className={`relative z-10 font-sans text-xl sm:text-2xl font-medium text-white leading-[1.05] tracking-tight text-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
+                          className={`relative z-10 font-sans text-xl sm:text-2xl font-medium text-white leading-[1.05] tracking-tight text-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                             isCardFocused 
                               ? '-translate-y-1 drop-shadow-[0_4px_16px_rgba(255,255,255,0.3)]' 
                               : 'translate-y-0 drop-shadow-sm group-hover:-translate-y-1 group-hover:drop-shadow-[0_4px_16px_rgba(255,255,255,0.3)]'
@@ -1072,7 +1095,7 @@ export const DisciplinesSection: React.FC<DisciplinesSectionProps> = ({ onSelect
                             : 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 25%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.1) 80%, rgba(0,0,0,0) 100%)',
                         }}
                       >
-                        <p className={`font-sans text-[11px] sm:text-xs text-neutral-200/90 leading-relaxed font-light text-center max-w-[260px] line-clamp-2 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[transform,opacity,filter] ${
+                        <p className={`font-sans text-[11px] sm:text-xs text-neutral-200/90 leading-relaxed font-light text-center max-w-[260px] line-clamp-2 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                           isCardFocused
                             ? 'opacity-100 translate-y-0 blur-0'
                             : 'opacity-80 translate-y-1 blur-[0.3px] group-hover:opacity-100 group-hover:translate-y-0 group-hover:blur-0'

@@ -12,16 +12,28 @@ interface FeaturedWorkSectionProps {
   onOpenInquiry: () => void;
 }
 
-const ProjectVideo = ({ src }: { src: string }) => {
+const ProjectVideo = ({ src, idx }: { src: string; idx: number }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isActive, setIsActive] = useState(idx === 0);
+
+  useEffect(() => {
+    const handleActiveChange = (e: any) => {
+      const { activeIndex, hoveredIndex } = e.detail;
+      setIsActive(activeIndex === idx || hoveredIndex === idx);
+    };
+    window.addEventListener('featuredWorkActiveChange', handleActiveChange);
+    return () => window.removeEventListener('featuredWorkActiveChange', handleActiveChange);
+  }, [idx]);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
+    let isVideoVisible = false;
+
     const playVideo = async () => {
       try {
-        if (video.paused) {
+        if (video.paused && isVideoVisible) {
           await video.play();
         }
       } catch (err) {
@@ -29,29 +41,44 @@ const ProjectVideo = ({ src }: { src: string }) => {
       }
     };
     
-    playVideo();
-    
     const handlePause = () => {
-      playVideo();
+      if (isVideoVisible) {
+        playVideo();
+      }
     };
     
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          isVideoVisible = entry.isIntersecting;
+          if (isVideoVisible && isActive) {
+            playVideo();
+          } else {
+            video.pause();
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(video);
     video.addEventListener('pause', handlePause);
     
     return () => {
+      observer.disconnect();
       video.removeEventListener('pause', handlePause);
     };
-  }, [src]);
+  }, [src, isActive]);
 
   return (
     <video
       ref={videoRef}
       src={src}
       className="project-video w-full h-full object-cover group-hover:scale-105 group-[.is-active-card]:scale-105 transition-transform duration-1000 ease-out filter brightness-[0.85] contrast-[1.10] group-hover:brightness-100 group-[.is-active-card]:brightness-100 transform-gpu pointer-events-none"
-      autoPlay
       loop
       muted
       playsInline
-      preload="auto"
+      preload="metadata"
     />
   );
 };
@@ -83,6 +110,9 @@ export const FeaturedWorkSection: React.FC<FeaturedWorkSectionProps> = ({ onOpen
         gsap.set(card, { zIndex: cards.length - i });
       }
     });
+    window.dispatchEvent(new CustomEvent('featuredWorkActiveChange', { 
+      detail: { activeIndex, hoveredIndex: hoveredIndexRef.current } 
+    }));
   };
 
   // Sync hoveredIndex state to ref and update classes
@@ -278,7 +308,7 @@ export const FeaturedWorkSection: React.FC<FeaturedWorkSectionProps> = ({ onOpen
             loop
             muted
             playsInline
-            preload="auto"
+            preload="metadata"
             className="w-full h-full object-cover object-center opacity-45 mix-blend-screen filter brightness-[0.90] contrast-[1.10] pointer-events-none"
           />
           {/* Elegant gradient vignettes */}
@@ -328,7 +358,7 @@ export const FeaturedWorkSection: React.FC<FeaturedWorkSectionProps> = ({ onOpen
                   {/* Visual Media Full Card Background */}
                   <div className="absolute inset-0 z-0 pointer-events-none">
                     {project.videoUrl ? (
-                      <ProjectVideo src={project.videoUrl} />
+                      <ProjectVideo src={project.videoUrl} idx={idx} />
                     ) : (
                       <img
                         src={project.heroImage}
