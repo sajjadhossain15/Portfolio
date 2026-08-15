@@ -8,14 +8,41 @@ export const AboutSection: React.FC = () => {
   const isCrossfadingRef = useRef(false);
 
   useEffect(() => {
+    let isVisible = false;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          isVisible = entry.isIntersecting;
+          const activeVid = activeVideo === 0 ? videoRefA.current : videoRefB.current;
+          
+          if (isVisible) {
+            if (activeVid && activeVid.paused) {
+              activeVid.play().catch(() => {});
+            }
+          } else {
+            if (activeVid && !activeVid.paused) {
+              activeVid.pause();
+            }
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const section = document.getElementById('about');
+    if (section) observer.observe(section);
+
     if (videoRefA.current) {
       videoRefA.current.muted = true;
-      videoRefA.current.play().catch(() => {});
+      if (isVisible) videoRefA.current.play().catch(() => {});
     }
     if (videoRefB.current) {
       videoRefB.current.muted = true;
     }
-  }, []);
+
+    return () => observer.disconnect();
+  }, [activeVideo]);
 
   const handleTimeUpdate = (index: 0 | 1) => (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const video = e.currentTarget;
@@ -72,10 +99,9 @@ export const AboutSection: React.FC = () => {
             className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-500 ease-in-out ${
               activeVideo === 0 ? 'opacity-90' : 'opacity-0'
             }`}
-            autoPlay
             muted
             playsInline
-            preload="auto"
+            preload="metadata"
           />
           <video
             ref={videoRefB}
@@ -87,7 +113,7 @@ export const AboutSection: React.FC = () => {
             }`}
             muted
             playsInline
-            preload="auto"
+            preload="metadata"
           />
 
           {/* Very subtle 15% dark overlay for subtle text readability while keeping background video fully visible */}
